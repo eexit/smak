@@ -1,0 +1,22 @@
+[
+    {
+        "tpl":null,
+        "label":"Home",
+        "title":"Back to the homepage"
+    },
+    {
+        "tpl":"about.html",
+        "label":"About",
+        "title":"Read about me"
+    },
+    {
+        "tpl":"projects/",
+        "label":"Projects",
+        "title":"Take a look at my projects"
+    },
+    {
+        "url":"http://www.domain.tld",
+        "label":"Website",
+        "title":"Website I promote!"
+    }
+]
