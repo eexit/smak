@@ -7,7 +7,8 @@
     {
         "tpl":"about.html",
         "label":"About",
-        "title":"Read about me"
+        "title":"Read about me",
+        "shl":"custom"
     },
     {
         "tpl":"projects/",

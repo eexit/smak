@@ -1,8 +1,9 @@
 <?php
-// Requires Smak
-require_once('Smak.php');
+function __autoload($class_name) {
+    require_once $class_name . '.php';
+}
 
-// Creates a new smak ;-)
 $smak = new Smak;
-$smak->loadNav('nav.json');
+$smak->loadNav('json/nav.json');
+$smak->render();
 ?>

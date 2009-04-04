@@ -1,1 +1,50 @@
-Test
+Smak v.1.10 - 2009-04-04
+--
+
+Author:     Joris Berthelot <admin@eexit.net>
+Website:    www.eexit.net
+
+This product is not refined for big projects. Just for personal Websites or very Website which not need huge features.
+Anyways, Smak is refined to be extended so instead of create a Smak object, extend it and make your own. More powerful.
+
+
+Directory set:
+
++ /
+|- + html/
+|  |_ .htacess
+|  |_ index.php
+|
+\- + inc/
+   |_ core.php
+   |
+   |- + json/
+   |  |_ nav.json
+   |
+   |- + shl/
+   |  |_ custom.shl
+   |  |_ default.shl
+   |
+   |_ Smak.php
+   |
+   \- + tpl/
+      |_ index.tpl
+      |
+      \- + side/
+         |_ index.tpl
+
+ChangeLog:
+
+ - Compatible with WAMP environment
+ - Dedicated Exception class
+ - __call() method removed and replaced by setter and getter methods
+ - getNav() now only accept an array as param for custom XHTML attributes
+ - Multiple layout management
+ - Plugins management
+ - Bufferized output
+ - Coding and indent style updated
+ 
+ ToDo:
+ - Cache management
+ - Split nav.json to another real config file
+ - Improve plugins management
