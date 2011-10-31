@@ -1,24 +1,41 @@
 <?php
 namespace Smak\Portfolio\tests\units;
+
 use mageekguy\atoum;
 use Smak\Portfolio;
-//use Symfony\Component\Finder\Finder as Finder;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
 class Sets extends atoum\test
-{   
-    public function testIsClassWellFormed()
-    {   
-        $sets = new \Smak\Portfolio\Sets();
+{
+    public function testBuildSets()
+    {
+        $sets = $this->_bootstrap();
         $this->assert->object($sets)->isInstanceOf('Symfony\Component\Finder\Finder');
         $this->assert->object($sets)->isInstanceOf('Countable');
     }
     
-    public function testGetAll()
+    public function testGetSets()
     {
-        $sets = new \Smak\Portfolio\Sets($this->_getFs());        
-        //$this->assert->object($sets->getAll())->isInstanceOf('Iterator');
+        $sets = $this->_bootstrap();
+        $this->assert->object($sets->getSets())->isInstanceOf('Iterator');
+    }
+    
+    public function testCount()
+    {
+        $sets = $this->_bootstrap();
+        $this->assert->integer($sets->count())->isEqualTo(5);
+    }
+    
+    public function testGetSet()
+    {
+        $sets = $this->_bootstrap();
+        $this->assert->object($sets->getSet('Chile'))->isInstanceOf('SplFileInfo');
+    }
+    
+    protected function _bootstrap()
+    {
+        return new \Smak\Portfolio\Sets($this->_getFs());
     }
     
     protected function _getFs()
