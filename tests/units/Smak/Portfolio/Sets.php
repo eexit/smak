@@ -1,45 +1,76 @@
 <?php
+
 namespace Smak\Portfolio\tests\units;
 
 use mageekguy\atoum;
 use Smak\Portfolio;
+use tests\Fs;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
 class Sets extends atoum\test
 {
+    const FS_REL = '/../../../fs';
+    
+    public function setUp()
+    {
+        $fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
+        $fs->build();
+        $this->assert->boolean($fs->isBuilt())->isTrue();
+    }
+    
+    public function beforeTestMethod($method)
+    {
+        $this->instance = new \Smak\Portfolio\Sets(__DIR__ . self::FS_REL);
+    }
+    
     public function testBuildSets()
     {
-        $sets = $this->_bootstrap();
-        $this->assert->object($sets)->isInstanceOf('Symfony\Component\Finder\Finder');
-        $this->assert->object($sets)->isInstanceOf('Countable');
+        $this->assert->object($this->instance)->isInstanceOf('Symfony\Component\Finder\Finder');
+        $this->assert->object($this->instance)->isInstanceOf('Countable');
     }
     
     public function testGetSets()
     {
-        $sets = $this->_bootstrap();
-        $this->assert->object($sets->getSets())->isInstanceOf('Iterator');
+        $this->assert->object($this->instance->getSets())->isInstanceOf('Iterator');
     }
     
     public function testCount()
     {
-        $sets = $this->_bootstrap();
-        $this->assert->integer($sets->count())->isEqualTo(5);
+        $this->assert->integer($this->instance->count())->isEqualTo(5);
     }
     
     public function testGetSet()
     {
-        $sets = $this->_bootstrap();
-        $this->assert->object($sets->getSet('Chile'))->isInstanceOf('SplFileInfo');
+        $this->assert->object($this->instance->getSet('Chile'))->isInstanceOf('SplFileInfo');
     }
     
-    protected function _bootstrap()
+    public function tearDown()
     {
-        return new \Smak\Portfolio\Sets($this->_getFs());
+        $fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
+        $fs->clear();
     }
     
-    protected function _getFs()
+    private function _fsTreeProvider()
     {
-        return __DIR__ . '/../../../fs';
+        return array('Canon_450D'   => array(
+            'Sandrine'  => array(
+                'sample-1.jpg',
+                'sample-2.jpg',
+                'sandrine.twig'
+            ),
+            'Weddings'  => array(
+                'sample-1.jpg',
+                'sample-2.jpg',
+                'sample-3.jpg',
+                'weddings.twig'
+            )),'Travels'            => array(
+            'Chile'     => array(
+                'sample-1.jpeg',
+                'sample-3.jpG',
+                'sample-2.jpg',
+                'sample-4.png',
+                'chile.twig'
+        )));
     }
 }

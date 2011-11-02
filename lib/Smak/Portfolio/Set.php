@@ -59,7 +59,7 @@ class Set extends Finder implements \Countable
      */
     public function getPhotos()
     {
-        return $this->sort()->getIterator()->getIterator();
+        return $this->getIterator();
     }
     
     /**
@@ -74,18 +74,30 @@ class Set extends Finder implements \Countable
     }
     
     /**
-     * Sort custom method setter
-     * 
-     * @param \Closure $sort Sort closure
+     * SPL set info getter
      */
-    public function sort(\Closure $sort = null) {
-        
-        if (is_null($sort)) {
-            $sort = function(\SplFileInfo $a, \SplFileInfo $b) {
-                return $a->getMTime() >= $b->getMTime() ? -1 : 1;
-            };
-        }
-        
-        return parent::sort($sort);
+    public function getSplInfo()
+    {
+        return $this->_setInfo;
+    }
+    
+    /**
+     * Sorts files by modification time (newest first)
+     */
+    public function sortByNewest()
+    {
+        return parent::sort(function(\SplFileInfo $a, \SplFileInfo $b) {
+            return $a->getMTime() > $b->getMTime() ? -1 : 1;
+        });
+    }
+    
+    /**
+     * Sorts files by modification time (oldest first)
+     */
+    public function sortByOldest()
+    {
+        return parent::sort(function(\SplFileInfo $a, \SplFileInfo $b) {
+            return $a->getMTime() < $b->getMTime() ? -1 : 1;
+        });
     }
 }

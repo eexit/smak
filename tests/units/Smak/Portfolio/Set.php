@@ -1,64 +1,112 @@
 <?php
+
 namespace Smak\Portfolio\tests\units;
 
 use mageekguy\atoum;
 use Smak\Portfolio;
+use tests\Fs;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
 class Set extends atoum\test
 {
-    public function testNewSet()
+    const FS_REL = '/../../../fs';
+    
+    public function setUp()
     {
-        $set = $this->_bootstrap();
-        $this->assert->object($set)->isInstanceOf('Symfony\Component\Finder\Finder');
-        $this->assert->object($set)->isInstanceOf('Countable');
+        $fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
+        $fs->setDiffTime(true);
+        $fs->build();
+        $this->assert->boolean($fs->isBuilt())->isTrue();
     }
     
+    public function beforeTestMethod($method)
+    {
+        $this->fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
+        $setRoot = new \SplFileInfo($this->fs->getRoot() . '/Travels/Chile');
+        $this->instance = new \Smak\Portfolio\Set($setRoot);
+    }
+    
+    public function testNewSet()
+    {
+        $this->assert->object($this->instance)->isInstanceOf('Symfony\Component\Finder\Finder');
+        $this->assert->object($this->instance)->isInstanceOf('Countable');
+    }
     public function testCount()
     {
-        $set = $this->_bootstrap();
-        $this->assert->integer($set->count())->isEqualTo(4);
+        $this->assert->integer($this->instance->count())->isEqualTo(4);
     }
     
     public function testGetPhotos()
     {
-        $set = $this->_bootstrap();
-        $this->assert->object($set->getPhotos())->isInstanceOf('Iterator');
+        $this->assert->object($this->instance->getPhotos())->isInstanceOf('Iterator');
     }
     
     public function testGetSetInfo()
     {
-        $set = $this->_bootstrap();
-        $this->assert->object($set->getInfo())->isInstanceOf('SplFileInfo');
-        $this->assert->string($set->getInfo()->getFileName())->isEqualTo('chile.twig');
+        $this->assert->object($this->instance->getInfo())->isInstanceOf('SplFileInfo');
+        $this->assert->string($this->instance->getInfo()->getFileName())->isEqualTo('chile.twig');
     }
     
-    public function testGetPhotoInRightOrder()
+    public function testGetPhotoInNaturalOrder()
     {
-        $set = $this->_bootstrap();
+        $expected = $this->fs->getTree();
+        $expected = $expected['Travels']['Chile'];
+        array_pop($expected);
+        sort($expected);
         $results = array();
-        $expected = array(
-            'sample-4.png',
-            'sample-3.jpg',
-            'sample-2.jpG',
-            'sample-1.jpeg'
-        );
         
-        foreach ($set->getPhotos() as $file) {
+        
+        foreach ($this->instance->getPhotos() as $file) {
             $results[] = $file->getFilename();
         }
         
         $this->assert->array($expected)->isEqualTo($results);
     }
     
-    protected function _bootstrap()
+    public function testGetPhotoByMTimeNewestFirst()
     {
-        return new \Smak\Portfolio\Set(new \SplFileInfo($this->_getFs()));
+        $expected = $this->fs->getTree();
+        $expected = $expected['Travels']['Chile'];
+        array_pop($expected);
+        $results = array();
+        
+        foreach ($this->instance->sortByNewest()->getPhotos() as $file) {
+            $results[] = $file->getFilename();
+        }
+        
+        $this->assert->array(array_reverse($expected))->isEqualTo($results);
     }
     
-    protected function _getFs()
+    public function testGetPhotoByMTimeOldestFirst()
     {
-        return __DIR__ . '/../../../fs/Travels/Chile';
+        $expected = $this->fs->getTree();
+        $expected = $expected['Travels']['Chile'];
+        array_pop($expected);
+        $results = array();
+        
+        foreach ($this->instance->sortByOldest()->getPhotos() as $file) {
+            $results[] = $file->getFilename();
+        }
+        
+        $this->assert->array($expected)->isEqualTo($results);
+    }
+    
+    public function tearDown()
+    {
+        $fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
+        $fs->clear();
+    }
+    
+    private function _fsTreeProvider()
+    {
+        return array('Travels'  => array(
+            'Chile' => array(
+                'sample-1.jpeg',
+                'sample-3.jpG',
+                'sample-2.jpg',
+                'sample-4.png',
+                'chile.twig'
+        )));
     }
 }
