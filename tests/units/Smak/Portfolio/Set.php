@@ -17,45 +17,132 @@ class Set extends atoum\test
         $fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
         $fs->setDiffTime(true);
         $fs->build();
-        $this->assert->boolean($fs->isBuilt())->isTrue();
+        $this->assert->boolean($fs->isBuilt())
+             ->isTrue();
     }
     
     public function beforeTestMethod($method)
     {
-        $this->fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
+        $this->fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());        
         $setRoot = new \SplFileInfo($this->fs->getRoot() . '/Travels/Chile');
         $this->instance = new \Smak\Portfolio\Set($setRoot);
     }
     
     public function testNewSet()
     {
-        $this->assert->object($this->instance)->isInstanceOf('Symfony\Component\Finder\Finder');
-        $this->assert->object($this->instance)->isInstanceOf('Countable');
+        $this->assert->object($this->instance)
+             ->isInstanceOf('\Symfony\Component\Finder\Finder');
+        
+        $this->assert->object($this->instance)
+             ->isInstanceOf('\Countable');
     }
     public function testCount()
     {
-        $this->assert->integer($this->instance->count())->isEqualTo(4);
+        $this->assert->integer($this->instance->count())
+             ->isEqualTo(4);
     }
     
     public function testGetPhotos()
     {
-        $this->assert->object($this->instance->getPhotos())->isInstanceOf('Iterator');
+        $this->assert->object($this->instance->getPhotos())
+             ->isInstanceOf('\ArrayIterator');
+    }
+    
+    public function testGetPhotoById()
+    {
+        $set = $this->instance;
+        $tree = $this->fs->getTree();
+        $tree = $tree['Travels']['Chile'];
+        array_pop($tree);
+        sort($tree);
+        
+        $this->assert->exception(function() use ($set) {
+            $set->getPhotoById("foo");
+        })->isInstanceOf('\InvalidArgumentException');
+        
+        $this->assert->string($set->getPhotoById(2)->getFileName())
+             ->isEqualTo($tree[2]);
+        
+        $this->assert->exception(function() use ($set) {
+            $set->getPhotoById(123);
+        })->isInstanceOf('\OutOfRangeException');
+    }
+    
+    public function testGetPhotoByName()
+    {
+        $set = $this->instance;
+        $tree = $this->fs->getTree();
+        $tree = $tree['Travels']['Chile'];
+        array_pop($tree);
+        sort($tree);
+        
+        $this->assert->exception(function() use ($set) {
+            $set->getPhotoByName(23.34);
+        })->isInstanceOf('\InvalidArgumentException');
+        
+        $this->assert->string($set->getPhotoByName('sample-4')->getFileName())
+             ->isEqualTo($tree[3]);
+        
+        $this->assert->exception(function() use ($set) {
+            $set->getPhotoByName('foobar');
+        })->isInstanceOf('\UnexpectedValueException');
     }
     
     public function testGetSetInfo()
     {
-        $this->assert->object($this->instance->getInfo())->isInstanceOf('SplFileInfo');
-        $this->assert->string($this->instance->getInfo()->getFileName())->isEqualTo('chile.twig');
+        $this->assert->object($this->instance->getInfo())
+             ->isInstanceOf('SplFileInfo');
+        
+        $this->assert->string($this->instance->getInfo()->getFileName())
+             ->isEqualTo('chile.twig');
+    }
+    
+    public function testGetSetSplInfo()
+    {
+        $this->assert->object($this->instance->getSplInfo())
+             ->isInstanceOf('SplFileInfo');
+        
+        $this->assert->string($this->instance->getSplInfo()->getFilename())
+             ->isEqualTo('Chile');
+        
+        $this->assert->string($this->instance->getSplInfo()->getRealPath())
+             ->isEqualTo(realpath(__DIR__ . self::FS_REL) . '/Travels/Chile');
+    }
+    
+    public function testGetFirst()
+    {
+        $first = $this->instance->getFirst();
+        $tree = $this->fs->getTree();
+        $expected = array_shift($tree['Travels']['Chile']);
+        
+        $this->assert->object($first)
+             ->isInstanceOf('\Smak\Portfolio\Photo');
+        
+        $this->assert->string($first->getFilename())
+             ->isEqualTo($expected);
+    }
+    
+    public function testGetLast()
+    {
+        $last = $this->instance->getLast();
+        $tree = $this->fs->getTree();
+        array_pop($tree['Travels']['Chile']); // Removes the twig file from Tree
+        $expected = array_pop($tree['Travels']['Chile']);
+        
+        $this->assert->object($last)
+             ->isInstanceOf('\Smak\Portfolio\Photo');
+        
+        $this->assert->string($last->getFilename())
+             ->isEqualTo($expected);
     }
     
     public function testGetPhotoInNaturalOrder()
     {
-        $expected = $this->fs->getTree();
-        $expected = $expected['Travels']['Chile'];
+        $tree = $this->fs->getTree();
+        $expected = $tree['Travels']['Chile'];
         array_pop($expected);
         sort($expected);
         $results = array();
-        
         
         foreach ($this->instance->getPhotos() as $file) {
             $results[] = $file->getFilename();
@@ -66,8 +153,8 @@ class Set extends atoum\test
     
     public function testGetPhotoByMTimeNewestFirst()
     {
-        $expected = $this->fs->getTree();
-        $expected = $expected['Travels']['Chile'];
+        $tree = $this->fs->getTree();
+        $expected = $tree['Travels']['Chile'];
         array_pop($expected);
         $results = array();
         
@@ -75,13 +162,14 @@ class Set extends atoum\test
             $results[] = $file->getFilename();
         }
         
-        $this->assert->array(array_reverse($expected))->isEqualTo($results);
+        $this->assert->array(array_reverse($expected))
+             ->isEqualTo($results);
     }
     
     public function testGetPhotoByMTimeOldestFirst()
     {
-        $expected = $this->fs->getTree();
-        $expected = $expected['Travels']['Chile'];
+        $tree = $this->fs->getTree();
+        $expected = $tree['Travels']['Chile'];
         array_pop($expected);
         $results = array();
         

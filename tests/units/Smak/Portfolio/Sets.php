@@ -26,23 +26,29 @@ class Sets extends atoum\test
     
     public function testBuildSets()
     {
-        $this->assert->object($this->instance)->isInstanceOf('Symfony\Component\Finder\Finder');
-        $this->assert->object($this->instance)->isInstanceOf('Countable');
+        $this->assert->object($this->instance)
+             ->isInstanceOf('\Symfony\Component\Finder\Finder');
+        
+        $this->assert->object($this->instance)
+             ->isInstanceOf('\Countable');
     }
     
     public function testGetSets()
     {
-        $this->assert->object($this->instance->getSets())->isInstanceOf('Iterator');
+        $this->assert->object($this->instance->getSets())
+             ->isInstanceOf('\Iterator');
     }
     
     public function testCount()
     {
-        $this->assert->integer($this->instance->count())->isEqualTo(5);
+        $this->assert->integer($this->instance->count())
+             ->isEqualTo(5);
     }
     
     public function testGetSet()
     {
-        $this->assert->object($this->instance->getSet('Chile'))->isInstanceOf('SplFileInfo');
+        $this->assert->object($this->instance->getSet('Chile'))
+             ->isInstanceOf('\SplFileInfo');
     }
     
     public function tearDown()

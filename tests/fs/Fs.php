@@ -40,7 +40,7 @@ class Fs
     public function __construct($dir, array $tree = null)
     {
         if (!is_dir($dir) || !is_writable($dir)) {
-            throw new \Exception('Filesystem root dir does not exists or cannot be written!');
+            throw new \InvalidArgumentException('Filesystem root dir does not exists or cannot be written!');
         }
         
         $this->_root = $dir;

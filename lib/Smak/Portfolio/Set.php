@@ -43,11 +43,16 @@ class Set extends Finder implements \Countable
         parent::create();
         $this->_setInfo = $setInfo;
         $this->name = $setInfo->getFileName();
-        $this->files()->name(self::PHOTO_PATTERN)->in($setInfo->getRealPath())->ignoreDotFiles(true);
+        $this->files()
+             ->name(self::PHOTO_PATTERN)
+             ->in($setInfo->getRealPath())
+             ->ignoreDotFiles(true);
     }
     
     /**
      * Mandatory count method
+     * 
+     * @return int
      */
     public function count()
     {
@@ -56,25 +61,106 @@ class Set extends Finder implements \Countable
     
     /**
      * Set photo content getter
+     * 
+     * @return ArrayIterator
      */
     public function getPhotos()
     {
-        return $this->getIterator();
+        $iterator = $this->getIterator();
+        $photos = new \ArrayIterator();
+        
+        foreach ($iterator as $photo) {
+            $photos->append($photo->getFileInfo('\Smak\Portfolio\Photo'));
+        }
+        
+        return $photos;
     }
     
     /**
-     * Set info file getter
+     * Photo getter by ID
+     * 
+     * @param int $id The photo position
+     * @return Smak\Portfolio\Photo
+     * @throws InvalidArgumentException, OutOfRangeException
+     */
+    public function getPhotoById($id)
+    {
+        if (!is_int($id) || 0 > $id) {
+            throw new \InvalidArgumentException('Photo ID argument must an integer >=  0!');
+        }
+        
+        if (!$this->getPhotos()->offsetExists($id)) {
+            throw new \OutOfRangeException(sprintf('Photo ID #%d does not exist!', $id));
+        }
+        
+        return $this->getPhotos()->offsetGet($id);
+    }
+    
+    /**
+     * Photo getter by name (filename without extension)
+     * 
+     * @param string $name The photo filename (w/o extension)
+     * @return Smak\Portfolio\Photo
+     * @throws InvalidArgumentException, UnexpectedValueException
+     */
+    public function getPhotoByName($name)
+    {
+        if (!is_string($name) || empty($name)) {
+            throw new \InvalidArgumentException('Photo name argument must a non empty string!');
+        }
+        
+        foreach ($this->getPhotos() as $photo) {
+            if ($name === preg_replace(self::PHOTO_PATTERN, null, $photo->getFilename())) {
+                
+                return $photo;
+            }
+        }
+        
+        throw new \UnexpectedValueException(sprintf('Photo "%s" does not exist!', $name));
+    }
+    
+    /**
+     * Gets the first photo of set
+     * 
+     * @return Smak\Portfolio\Photo
+     */
+    public function getFirst()
+    {
+        $iterator = iterator_to_array($this->getPhotos());
+        
+        return array_shift($iterator);
+    }
+    
+    /**
+     * Gets the last photo of set
+     * 
+     * @return Smak\Portfolio\Photo
+     */
+    public function getLast()
+    {
+        $iterator = iterator_to_array($this->getPhotos());
+        
+        return array_pop($iterator);
+    }
+    
+    /**
+     * Photo set info file getter
+     * 
+     * @return SplFileInfo
      */
     public function getInfo()
     {
         $infoFile = $this->_setInfo->getRealPath() . DIRECTORY_SEPARATOR . strtolower($this->name) . self::INFO_EXT;
         if (is_file($infoFile)) {
+            
             return new \SplFileInfo($infoFile);
         }
     }
     
     /**
      * SPL set info getter
+     * 
+     * @return SplFileInfo
      */
     public function getSplInfo()
     {
@@ -83,6 +169,8 @@ class Set extends Finder implements \Countable
     
     /**
      * Sorts files by modification time (newest first)
+     * 
+     * @return Smak\Portfolio\Set
      */
     public function sortByNewest()
     {
@@ -93,6 +181,8 @@ class Set extends Finder implements \Countable
     
     /**
      * Sorts files by modification time (oldest first)
+     * 
+     * @return Smak\Portfolio\Set
      */
     public function sortByOldest()
     {
