@@ -14,14 +14,14 @@ use Symfony\Component\Finder\Finder;
 class Set extends Finder implements \Countable
 {
     /**
-     * Allowed photography file extensions
+     * Allowed set info file extensions
      */
-    const PHOTO_PATTERN = '/\.(jpe?g|png)$/i';
+    protected $_info_ext = array('.twig');
     
     /**
-     * Set info file extension
+     * Allowed set photography file extensions
      */
-    const INFO_EXT = '.twig';
+    protected $_allowed_ext = array('.jpg', '.jpeg', '.png');
     
     /**
      * Set name
@@ -31,22 +31,25 @@ class Set extends Finder implements \Countable
     /**
      * Set technical info (instance of \SplFileInfo)
      */
-    protected $_setInfo;
+    protected $_set_info;
     
     /**
      * Class constructor
      * 
      * @param \SplFileInfo $setInfo Set file info
      */
-    public function __construct(\SplFileInfo $setInfo)
+    public function __construct(\SplFileInfo $set_info)
     {
         parent::create();
-        $this->_setInfo = $setInfo;
-        $this->name = $setInfo->getFileName();
+        $this->_set_info = $set_info;
+        $this->name = $set_info->getFileName();
         $this->files()
-             ->name(self::PHOTO_PATTERN)
-             ->in($setInfo->getRealPath())
+             ->in($set_info->getRealPath())
              ->ignoreDotFiles(true);
+             
+        foreach ($this->_allowed_ext as $ext) {
+            $this->name(sprintf('/%s$/i', $ext));
+        }
     }
     
     /**
@@ -74,6 +77,62 @@ class Set extends Finder implements \Countable
         }
         
         return $photos;
+    }
+    
+    /**
+     * Allowed photo extension getter
+     * 
+     * @return array
+     */
+    public function getPhotoExtensions()
+    {
+        return $this->_allowed_ext;
+    }
+    
+    /**
+     * Allowed photo extension setter
+     * 
+     * @param array $new_ext New array of photo extensions
+     * @return Smak\Portfolio\Set
+     * @throws \InvalidArgumentException
+     */
+    public function setPhotoExtensions(array $new_ext)
+    {
+        if (empty($new_ext)) {
+            throw new \InvalidArgumentException('New allowed photo extension array must not be empty!');
+        }
+        
+        $this->_allowed_ext = $new_ext;
+        
+        return $this;
+    }
+    
+    /**
+     * Set info file extension getter
+     * 
+     * @return array
+     */
+    public function getInfoExtensions()
+    {
+        return $this->_info_ext;
+    }
+    
+    /**
+     * Set info file extension setter
+     * 
+     * @param array $new_ext New array of info file extensions
+     * @return Smak\Portfolio\Set
+     * @throws \InvalidArgumentException
+     */
+    public function setInfoExtensions(array $new_ext)
+    {
+        if (empty($new_ext)) {
+            throw new \InvalidArgumentException('New info file extension array must not be empty!');
+        }
+        
+        $this->_info_ext = $new_ext;
+        
+        return $this;
     }
     
     /**
@@ -110,9 +169,11 @@ class Set extends Finder implements \Countable
         }
         
         foreach ($this->getPhotos() as $photo) {
-            if ($name === preg_replace(self::PHOTO_PATTERN, null, $photo->getFilename())) {
-                
-                return $photo;
+            foreach ($this->_allowed_ext as $ext) {
+                if ($name === $photo->getBasename($ext)) {
+
+                    return $photo;
+                }
             }
         }
         
@@ -150,10 +211,17 @@ class Set extends Finder implements \Countable
      */
     public function getInfo()
     {
-        $infoFile = $this->_setInfo->getRealPath() . DIRECTORY_SEPARATOR . strtolower($this->name) . self::INFO_EXT;
-        if (is_file($infoFile)) {
+        foreach ($this->_info_ext as $ext) {
             
-            return new \SplFileInfo($infoFile);
+            $info_file = $this->_set_info->getRealPath()
+                . DIRECTORY_SEPARATOR
+                . strtolower($this->name)
+                . $ext;
+                
+            if (is_file($info_file)) {
+
+                return new \SplFileInfo($info_file);
+            }
         }
     }
     
@@ -164,7 +232,7 @@ class Set extends Finder implements \Countable
      */
     public function getSplInfo()
     {
-        return $this->_setInfo;
+        return $this->_set_info;
     }
     
     /**

@@ -42,6 +42,44 @@ class Set extends atoum\test
              ->isEqualTo(4);
     }
     
+    public function testPhotoExtensions()
+    {
+        $set = $this->instance;
+        
+        $this->assert->array($set->getPhotoExtensions())
+             ->isEqualTo(array('.jpg', '.jpeg', '.png'));
+        
+        $this->assert->object($set->setPhotoExtensions(
+            $new_ext = array('.tiff', '.gif')
+        ))->isInstanceOf('\Smak\Portfolio\Set');
+        
+        $this->assert->array($set->getPhotoExtensions())
+             ->isEqualTo($new_ext);
+        
+        $this->assert->exception(function() use ($set) {
+            $set->setPhotoExtensions(array());
+        })->isInstanceOf('\InvalidArgumentException');
+    }
+    
+    public function testInfoExtension()
+    {
+        $set = $this->instance;
+        
+        $this->assert->array($set->getInfoExtensions())
+             ->isEqualTo(array('.twig'));
+        
+        $this->assert->object($set->setInfoExtensions(
+            $new_ext = array('.html', '.txt')
+        ))->isInstanceOf('\Smak\Portfolio\Set');
+        
+        $this->assert->array($set->getInfoExtensions())
+             ->isEqualTo($new_ext);
+        
+        $this->assert->exception(function() use ($set) {
+            $set->setInfoExtensions(array());
+        })->isInstanceOf('\InvalidArgumentException');
+    }
+    
     public function testGetPhotos()
     {
         $this->assert->object($this->instance->getPhotos())
@@ -88,10 +126,10 @@ class Set extends atoum\test
         })->isInstanceOf('\UnexpectedValueException');
     }
     
-    public function testGetSetInfo()
+    public function testGetInfo()
     {
         $this->assert->object($this->instance->getInfo())
-             ->isInstanceOf('SplFileInfo');
+             ->isInstanceOf('\SplFileInfo');
         
         $this->assert->string($this->instance->getInfo()->getFileName())
              ->isEqualTo('chile.twig');
@@ -100,7 +138,7 @@ class Set extends atoum\test
     public function testGetSetSplInfo()
     {
         $this->assert->object($this->instance->getSplInfo())
-             ->isInstanceOf('SplFileInfo');
+             ->isInstanceOf('\SplFileInfo');
         
         $this->assert->string($this->instance->getSplInfo()->getFilename())
              ->isEqualTo('Chile');
