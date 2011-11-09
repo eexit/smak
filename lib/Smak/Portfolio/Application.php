@@ -4,13 +4,13 @@ namespace Smak\Portfolio;
 use Symfony\Component\Finder\Finder;
 
 /**
- * Sets.php
+ * Application.php
  * 
  * @author Joris Berthelot <joris.berthelot@gmail.com>
  * @copyright Copyright (c) 2011, Joris Berthelot
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  */
-class Sets extends Finder implements \Countable
+class Application extends Finder implements \Countable
 {
     /**
      * Class constructor

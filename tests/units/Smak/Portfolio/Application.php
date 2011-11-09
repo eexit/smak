@@ -8,7 +8,7 @@ use tests\Fs;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
-class Sets extends atoum\test
+class Application extends atoum\test
 {
     const FS_REL = '/../../../fs';
     
@@ -21,7 +21,7 @@ class Sets extends atoum\test
     
     public function beforeTestMethod($method)
     {
-        $this->instance = new \Smak\Portfolio\Sets(__DIR__ . self::FS_REL);
+        $this->instance = new \Smak\Portfolio\Application(__DIR__ . self::FS_REL);
     }
     
     public function testBuildSets()
