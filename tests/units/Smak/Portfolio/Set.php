@@ -47,7 +47,7 @@ class Set extends atoum\test
         $set = $this->instance;
         
         $this->assert->array($set->getPhotoExtensions())
-             ->isEqualTo(array('.jpg', '.jpeg', '.png'));
+             ->isEqualTo(array('.jpg', '.jpeg', '.jpf', '.png'));
         
         $this->assert->object($set->setPhotoExtensions(
             $new_ext = array('.tiff', '.gif')

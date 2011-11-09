@@ -21,7 +21,7 @@ class Set extends Finder implements \Countable
     /**
      * Allowed set photography file extensions
      */
-    protected $_allowed_ext = array('.jpg', '.jpeg', '.png');
+    protected $_allowed_ext = array('.jpg', '.jpeg', '.jpf', '.png');
     
     /**
      * Set name
@@ -48,7 +48,7 @@ class Set extends Finder implements \Countable
              ->ignoreDotFiles(true);
              
         foreach ($this->_allowed_ext as $ext) {
-            $this->name(sprintf('/%s$/i', $ext));
+            $this->name(sprintf('/\%s$/i', $ext));
         }
     }
     
