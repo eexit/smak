@@ -24,13 +24,13 @@ class Application extends atoum\test
         $this->instance = new \Smak\Portfolio\Application(__DIR__ . self::FS_REL);
     }
     
-    public function testBuildSets()
+    public function testClassDeclaration()
     {
         $this->assert->object($this->instance)
              ->isInstanceOf('\Symfony\Component\Finder\Finder');
         
-        $this->assert->object($this->instance)
-             ->isInstanceOf('\Countable');
+        $this->assert->class('\Smak\Portfolio\Application')
+              ->hasInterface('\Countable');
     }
     
     public function testGetSets()

@@ -23,18 +23,18 @@ class Set extends atoum\test
     
     public function beforeTestMethod($method)
     {
-        $this->fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());        
+        $this->fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
         $setRoot = new \SplFileInfo($this->fs->getRoot() . '/Travels/Chile');
         $this->instance = new \Smak\Portfolio\Set($setRoot);
     }
     
-    public function testNewSet()
+    public function testClassDeclaration()
     {
         $this->assert->object($this->instance)
              ->isInstanceOf('\Symfony\Component\Finder\Finder');
         
-        $this->assert->object($this->instance)
-             ->isInstanceOf('\Countable');
+        $this->assert->class('\Smak\Portfolio\Set')
+             ->hasInterface('\Countable');
     }
     public function testCount()
     {
