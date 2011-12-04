@@ -1,8 +1,8 @@
 <?php
 
-namespace Smak\Porfolio\Provider;
+namespace Smak\Portfolio\Provider;
 
-use Smak\Porfolio\Application;
+use Smak\Portfolio\Application;
 use Silex\ServiceProviderInterface;
 
 /**
@@ -21,12 +21,8 @@ class SilexServiceProvider implements ServiceProviderInterface
      */
     public function register(\Silex\Application $app)
     {
-        $app['smak.portfolio'] = $app->share(function() {
-            return new Application($app['smak.portfolio.content_path']);
+        $app['smak.portfolio'] = $app->share(function() use ($app) {
+            return new Application($app['smak.portfolio.content_repository']);
         });
-        
-        if (isset($app['smak.portfolio.class_path'])) {
-            $app['autoloader']->registerNamespace('Smak\\Portfolio', $app['smak.portfolio.class_path']);
-        }
     }
 }
