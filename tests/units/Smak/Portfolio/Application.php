@@ -36,7 +36,7 @@ class Application extends atoum\test
     public function testGetSets()
     {
         $this->assert->object($this->instance->getSets())
-             ->isInstanceOf('\Iterator');
+             ->isInstanceOf('\ArrayIterator');
     }
     
     public function testCount()
@@ -48,7 +48,7 @@ class Application extends atoum\test
     public function testGetSet()
     {
         $this->assert->object($this->instance->getSet('Chile'))
-             ->isInstanceOf('\SplFileInfo');
+             ->isInstanceOf('\Smak\Portfolio\Set');
     }
     
     public function tearDown()

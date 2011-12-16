@@ -2,6 +2,7 @@
 
 namespace Smak\Portfolio;
 
+use Smak\Portfolio\Set;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -37,7 +38,13 @@ class Application extends Finder implements \Countable
      */
     public function getSets()
     {
-        return $this->getIterator();
+        $iterator = new \ArrayIterator();
+        
+        foreach ($this->getIterator() as $element) {
+            $iterator->append(new Set($element));
+        }
+        
+        return $iterator;
     }
     
     /**
@@ -49,7 +56,7 @@ class Application extends Finder implements \Countable
     {
         foreach ($this->getIterator() as $fileInfo) {
             if ($setName == $fileInfo->getFileName()) {
-                return $fileInfo;
+                return new Set($fileInfo);
             }
         }
     }
