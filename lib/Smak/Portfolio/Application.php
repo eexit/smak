@@ -38,13 +38,14 @@ class Application extends Finder implements \Countable
      */
     public function getSets()
     {
-        $iterator = new \ArrayIterator();
+        $sets = new \ArrayIterator();
+        $iterator = $this->getIterator()
         
-        foreach ($this->getIterator() as $element) {
-            $iterator->append(new Set($element));
+        foreach ($iterator as $set) {
+            $sets->append(new Set($set));
         }
         
-        return $iterator;
+        return $sets;
     }
     
     /**
