@@ -39,7 +39,7 @@ class Application extends Finder implements \Countable
     public function getSets()
     {
         $sets = new \ArrayIterator();
-        $iterator = $this->getIterator()
+        $iterator = $this->getIterator();
         
         foreach ($iterator as $set) {
             $sets->append(new Set($set));
