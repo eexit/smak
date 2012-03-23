@@ -50,11 +50,11 @@ class SilexServiceProvider implements ServiceProviderInterface
             $original_view_file = $app['smak.portfolio.content_path']
                 . $set->name
                 . DIRECTORY_SEPARATOR
-                . $set->getBasename();
-
+                . $set->getInfo()->getBasename();
+            
             $production_view_file = $app['smak.portfolio.view_path']
                 . DIRECTORY_SEPARATOR
-                . $view_name;
+                . $set->getInfo()->getBasename();
             
             if (!is_file($original_view_file)) {
                 return false;
