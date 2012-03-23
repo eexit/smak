@@ -9,7 +9,7 @@ use Symfony\Component\Finder\Finder;
  * Application.php
  * 
  * @author Joris Berthelot <joris@berthelot.tel>
- * @copyright Copyright (c) 2011, Joris Berthelot
+ * @copyright Copyright (c) 2012, Joris Berthelot
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  */
 class Application extends Finder implements \Countable
@@ -51,13 +51,13 @@ class Application extends Finder implements \Countable
     /**
      * Set getter
      * 
-     * @param string $setName Set name
+     * @param string $set_name Set name
      */
-    public function getSet($setName)
+    public function getSet($set_name)
     {
-        foreach ($this->getIterator() as $fileInfo) {
-            if ($setName == $fileInfo->getFileName()) {
-                return new Set($fileInfo);
+        foreach ($this->getIterator() as $file_info) {
+            if ($set_name == $file_info->getFileName()) {
+                return new Set($file_info);
             }
         }
     }
