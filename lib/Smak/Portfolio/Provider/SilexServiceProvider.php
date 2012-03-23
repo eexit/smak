@@ -3,6 +3,7 @@
 namespace Smak\Portfolio\Provider;
 
 use Smak\Portfolio\Application;
+use Smak\Portfolio\Set;
 use Silex\ServiceProviderInterface;
 
 /**
@@ -44,10 +45,16 @@ class SilexServiceProvider implements ServiceProviderInterface
         });
 
         // Application view loader
-        $app['smak.portfolio.view_loader'] = $app->protect(function($view_name) use ($app) {
+        $app['smak.portfolio.view_loader'] = $app->protect(function(Set $set) use ($app) {
 
-            $original_view_file = $app['smak.portfolio.content_path'] . $view_name;
-            $production_view_file = $app['smak.portfolio.view_path'] . $view_name;
+            $original_view_file = $app['smak.portfolio.content_path']
+                . $set->name
+                . DIRECTORY_SEPARATOR
+                . $set->getBasename();
+
+            $production_view_file = $app['smak.portfolio.view_path']
+                . DIRECTORY_SEPARATOR
+                . $view_name;
             
             if (!is_file($original_view_file)) {
                 return false;

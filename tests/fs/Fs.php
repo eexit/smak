@@ -5,8 +5,8 @@ namespace tests;
 /**
  * Fs.php
  * 
- * @author Joris Berthelot <admin@eexit.net>
- * @copyright Copyright (c) 2011, Joris Berthelot
+ * @author Joris Berthelot <joris@berthelot.tel>
+ * @copyright Copyright (c) 2012, Joris Berthelot
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  */
 class Fs
