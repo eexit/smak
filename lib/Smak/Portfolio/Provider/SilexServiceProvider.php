@@ -58,7 +58,7 @@ class SilexServiceProvider implements ServiceProviderInterface
             if (!is_file($production_view_file)
                 || (sha1_file($production_view_file) !== $view_fingerprint)) {
                 
-                if (!copy($original_view_file, $production_view_file) {
+                if (!copy($original_view_file, $production_view_file)) {
                     throw new SilexServiceProviderException(sprintf('Unable to copy view file: "%s!"', $original_view_file));
                 }
             }
