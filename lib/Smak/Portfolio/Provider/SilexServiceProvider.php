@@ -23,7 +23,6 @@ class SilexServiceProvider implements ServiceProviderInterface
      */
     public function register(\Silex\Application $app)
     {
-
         // Checks the presence of required parameter
         if (empty($app['smak.portfolio.content_path'])) {
             throw new SilexServiceProviderException('"smak.portfolio.content_path" parameter is mandatory!');
@@ -45,13 +44,14 @@ class SilexServiceProvider implements ServiceProviderInterface
         });
 
         // Application view loader
-        $app['smak.portfolio.view_loader'] = $app->protect(function(Set $set) use ($app) {
+        $app['smak.portfolio.view_loader'] = $app->protect(function(Set $set, $view_path) use ($app) {
 
             $original_view_file = $app['smak.portfolio.content_path']
+                . DIRECTORY_SEPARATOR
                 . $set->name
                 . DIRECTORY_SEPARATOR
                 . $set->getInfo()->getBasename();
-            
+
             $production_view_file = $app['smak.portfolio.view_path']
                 . DIRECTORY_SEPARATOR
                 . $set->getInfo()->getBasename();
@@ -70,7 +70,7 @@ class SilexServiceProvider implements ServiceProviderInterface
                 }
             }
 
-            return $production_view_file;
+            return substr($production_view_file, strlen($view_path));
         });
     }
 }
