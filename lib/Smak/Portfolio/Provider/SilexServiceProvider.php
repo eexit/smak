@@ -46,6 +46,10 @@ class SilexServiceProvider implements ServiceProviderInterface
         // Application view loader
         $app['smak.portfolio.view_loader'] = $app->protect(function(Set $set, $view_path) use ($app) {
 
+            if (is_null($set->getInfo())) {
+                return false;
+            }
+            
             $original_view_file = $app['smak.portfolio.content_path']
                 . DIRECTORY_SEPARATOR
                 . $set->name
