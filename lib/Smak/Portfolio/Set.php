@@ -16,7 +16,7 @@ class Set extends Finder implements \Countable
     /**
      * Allowed set info file extensions
      */
-    protected $_info_ext = array('.twig');
+    protected $_info_ext = array('.html.twig');
     
     /**
      * Allowed set photography file extensions

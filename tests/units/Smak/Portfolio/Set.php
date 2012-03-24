@@ -66,7 +66,7 @@ class Set extends atoum\test
         $set = $this->instance;
         
         $this->assert->array($set->getInfoExtensions())
-             ->isEqualTo(array('.twig'));
+             ->isEqualTo(array('.html.twig'));
         
         $this->assert->object($set->setInfoExtensions(
             $new_ext = array('.html', '.txt')
@@ -132,7 +132,7 @@ class Set extends atoum\test
              ->isInstanceOf('\SplFileInfo');
         
         $this->assert->string($this->instance->getInfo()->getFileName())
-             ->isEqualTo('chile.twig');
+             ->isEqualTo('chile.html.twig');
     }
     
     public function testGetSetSplInfo()
@@ -232,7 +232,7 @@ class Set extends atoum\test
                 'sample-3.jpG',
                 'sample-2.jpg',
                 'sample-4.png',
-                'chile.twig'
+                'chile.html.twig'
         )));
     }
 }
