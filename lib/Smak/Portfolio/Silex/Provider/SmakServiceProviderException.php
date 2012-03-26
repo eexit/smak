@@ -1,15 +1,15 @@
 <?php
 
-namespace Smak\Portfolio\Provider;
+namespace Smak\Portfolio\Silex\Provider;
 
 
 /**
- * SilexServiceProviderException.php
+ * SmakServiceProviderException.php
  * 
  * @author Joris Berthelot <joris@berthelot.tel>
  * @copyright Copyright (c) 2011, Joris Berthelot
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  */
-class SilexServiceProviderException extends \InvalidArgumentException
+class SmakServiceProviderException extends \Exception
 {
 }
