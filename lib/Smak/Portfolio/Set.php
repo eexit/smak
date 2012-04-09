@@ -36,7 +36,7 @@ class Set extends Finder implements \Countable
     /**
      * Class constructor
      * 
-     * @param \SplFileInfo $setInfo Set file info
+     * @param \SplFileInfo $set_info Set file info
      */
     public function __construct(\SplFileInfo $set_info)
     {
