@@ -4,6 +4,7 @@ namespace Smak\Portfolio\tests\units;
 
 use mageekguy\atoum;
 use Smak\Portfolio;
+use Smak\Portfolio\SortHelper;
 use tests\Fs;
 
 require_once __DIR__ . '/../../../bootstrap.php';
@@ -17,8 +18,7 @@ class Set extends atoum\test
         $fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
         $fs->setDiffTime(true);
         $fs->build();
-        $this->assert->boolean($fs->isBuilt())
-             ->isTrue();
+        $this->assert->boolean($fs->isBuilt())->isTrue();
     }
     
     public function beforeTestMethod($method)
@@ -180,7 +180,6 @@ class Set extends atoum\test
         $expected = $tree['Travels']['Chile'];
         array_pop($expected);
         sort($expected);
-        $results = array();
         
         foreach ($this->instance->getPhotos() as $file) {
             $results[] = $file->getFilename();
@@ -188,15 +187,28 @@ class Set extends atoum\test
         
         $this->assert->array($expected)->isEqualTo($results);
     }
+
+    public function testGetPhotoInReversedNaturalOrder()
+    {
+        $tree = $this->fs->getTree();
+        $expected = $tree['Travels']['Chile'];
+        array_pop($expected);
+        sort($expected);
+        
+        foreach ($this->instance->sort(SortHelper::reverse())->getPhotos() as $file) {
+            $results[] = $file->getFilename();
+        }
+        
+        $this->assert->array(array_reverse($expected))->isEqualTo($results);
+    }
     
     public function testGetPhotoByMTimeNewestFirst()
     {
         $tree = $this->fs->getTree();
         $expected = $tree['Travels']['Chile'];
         array_pop($expected);
-        $results = array();
         
-        foreach ($this->instance->sortByNewest()->getPhotos() as $file) {
+        foreach ($this->instance->sort(SortHelper::byNewest())->getPhotos() as $file) {
             $results[] = $file->getFilename();
         }
         
@@ -209,9 +221,8 @@ class Set extends atoum\test
         $tree = $this->fs->getTree();
         $expected = $tree['Travels']['Chile'];
         array_pop($expected);
-        $results = array();
         
-        foreach ($this->instance->sortByOldest()->getPhotos() as $file) {
+        foreach ($this->instance->sort(SortHelper::byOldest())->getPhotos() as $file) {
             $results[] = $file->getFilename();
         }
         

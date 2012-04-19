@@ -234,28 +234,4 @@ class Set extends Finder implements \Countable
     {
         return $this->_set_info;
     }
-    
-    /**
-     * Sorts files by modification time (newest first)
-     * 
-     * @return Smak\Portfolio\Set
-     */
-    public function sortByNewest()
-    {
-        return parent::sort(function(\SplFileInfo $a, \SplFileInfo $b) {
-            return $a->getMTime() > $b->getMTime() ? -1 : 1;
-        });
-    }
-    
-    /**
-     * Sorts files by modification time (oldest first)
-     * 
-     * @return Smak\Portfolio\Set
-     */
-    public function sortByOldest()
-    {
-        return parent::sort(function(\SplFileInfo $a, \SplFileInfo $b) {
-            return $a->getMTime() < $b->getMTime() ? -1 : 1;
-        });
-    }
 }

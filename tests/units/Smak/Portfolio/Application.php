@@ -4,6 +4,7 @@ namespace Smak\Portfolio\tests\units;
 
 use mageekguy\atoum;
 use Smak\Portfolio;
+use Smak\Portfolio\SortHelper;
 use tests\Fs;
 
 require_once __DIR__ . '/../../../bootstrap.php';
@@ -15,12 +16,14 @@ class Application extends atoum\test
     public function setUp()
     {
         $fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
+        $fs->setDiffTime(true);
         $fs->build();
         $this->assert->boolean($fs->isBuilt())->isTrue();
     }
     
     public function beforeTestMethod($method)
     {
+        $this->fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
         $this->instance = new \Smak\Portfolio\Application(__DIR__ . self::FS_REL);
     }
     
@@ -55,6 +58,70 @@ class Application extends atoum\test
         $this->assert->object($this->instance->getSet('Chile'))
              ->isInstanceOf('\Smak\Portfolio\Set');
     }
+
+    public function testGetSetsInNaturalOrder()
+    {
+        $dir = __DIR__ . self::FS_REL . '/Canon_450D';
+        $this->instance = new \Smak\Portfolio\Application($dir);
+
+        $tree = $this->fs->getTree();
+        $expected = array_keys($tree['Canon_450D']);
+        sort($expected);
+        
+        foreach ($this->instance->getSets() as $set) {
+            $results[] = $set->name;
+        }
+        
+        $this->assert->array($expected)->isEqualTo($results);
+    }
+
+    public function testGetSetsInReversedNaturalOrder()
+    {
+        $dir = __DIR__ . self::FS_REL . '/Canon_450D';
+        $this->instance = new \Smak\Portfolio\Application($dir);
+
+        $tree = $this->fs->getTree();
+        $expected = array_keys($tree['Canon_450D']);
+        sort($expected);
+        
+        foreach ($this->instance->sort(SortHelper::reverse())->getSets() as $set) {
+            $results[] = $set->name;
+        }
+        
+        $this->assert->array(array_reverse($expected))->isEqualTo($results);
+    }
+    
+    public function testGetSetsByMTimeNewestFirst()
+    {
+        $dir = __DIR__ . self::FS_REL . '/Canon_450D';
+        $this->instance = new \Smak\Portfolio\Application($dir);
+
+        $tree = $this->fs->getTree();
+        $expected = array_keys($tree['Canon_450D']);
+        sort($expected);
+        
+        foreach ($this->instance->sort(SortHelper::byNewest())->getSets() as $set) {
+            $results[] = $set->name;
+        }
+        
+        $this->assert->array($expected)->isEqualTo($results);   
+    }
+
+    public function testGetSetsByMTimeOlderFirst()
+    {
+        $dir = __DIR__ . self::FS_REL . '/Canon_450D';
+        $this->instance = new \Smak\Portfolio\Application($dir);
+
+        $tree = $this->fs->getTree();
+        $expected = array_keys($tree['Canon_450D']);
+        sort($expected);
+        
+        foreach ($this->instance->sort(SortHelper::byOldest())->getSets() as $set) {
+            $results[] = $set->name;
+        }
+        
+        $this->assert->array(array_reverse($expected))->isEqualTo($results);   
+    }
     
     public function tearDown()
     {
@@ -65,12 +132,12 @@ class Application extends atoum\test
     private function _fsTreeProvider()
     {
         return array('Canon_450D'   => array(
-            'Sandrine'  => array(
+            '2012-12-12'  => array(
                 'sample-1.jpg',
                 'sample-2.jpg',
                 'sandrine.twig'
             ),
-            'Weddings'  => array(
+            '2010-10-01'  => array(
                 'sample-1.jpg',
                 'sample-2.jpg',
                 'sample-3.jpg',
