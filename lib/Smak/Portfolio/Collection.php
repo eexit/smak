@@ -2,41 +2,41 @@
 
 namespace Smak\Portfolio;
 
-use Smak\Portfolio\Set;
-use Symfony\Component\Finder\Finder;
-
 /**
- * Application.php
+ * Collection.php
  * 
  * @author Joris Berthelot <joris@berthelot.tel>
  * @copyright Copyright (c) 2012, Joris Berthelot
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  */
-class Application extends Finder implements \Countable
+class Collection extends Portfolio
 {
+    /**
+     * Collection technical info (string)
+     */
+    protected $_dir = null;
+
     /**
      * Class constructor
      * 
      * @param string $dir Set parent directory
      */
-    public function __construct($dir = __DIR__)
+    public function __construct($dir = __DIR__, $depth = 0)
     {
         parent::create();
-        $this->directories()->in($dir)->ignoreDotFiles(true);
-    }
-    
-    /**
-     * Mandatory count method
-     */
-    public function count()
-    {
-        return iterator_count($this->getIterator());
+        $this->_dir = $dir;
+        $this->depth($depth)
+             ->directories()
+             ->in($dir)
+             ->ignoreDotFiles(true);
     }
     
     /**
      * Finder::getIterator() alias
+     *
+     * @return \ArrayIterator $sets
      */
-    public function getSets()
+    public function getAll()
     {
         $sets = new \ArrayIterator();
         $iterator = $this->getIterator();
@@ -49,16 +49,29 @@ class Application extends Finder implements \Countable
     }
     
     /**
-     * Set getter
+     * Set getter by name
      * 
-     * @param string $set_name Set name
+     * @param string $name The set filename
+     * @return Smak\Portfolio\Set | null
      */
-    public function getSet($set_name)
+    public function getByName($name)
     {
+        parent::getByName($name);
+
         foreach ($this->getIterator() as $file_info) {
-            if ($set_name == $file_info->getFileName()) {
+            if ($name == $file_info->getFilename()) {
                 return new Set($file_info);
             }
         }
+    }
+
+    /**
+     * Returns this instance as a Set
+     *
+     * @return \Smak\Portfolio\Set
+     */
+    public function asSet()
+    {
+        return new Set(new \SplFileInfo($this->_dir));
     }
 }

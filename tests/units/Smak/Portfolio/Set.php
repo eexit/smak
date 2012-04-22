@@ -32,6 +32,9 @@ class Set extends atoum\test
     {
         $this->assert->object($this->instance)
              ->isInstanceOf('\Symfony\Component\Finder\Finder');
+
+        $this->assert->object($this->instance)
+             ->isInstanceOf('\Smak\Portfolio\Portfolio');
         
         $this->assert->class('\Smak\Portfolio\Set')
              ->hasInterface('\Countable');
@@ -42,51 +45,51 @@ class Set extends atoum\test
              ->isEqualTo(4);
     }
     
-    public function testPhotoExtensions()
+    public function testExtensions()
     {
         $set = $this->instance;
         
-        $this->assert->array($set->getPhotoExtensions())
+        $this->assert->array($set->getExtensions())
              ->isEqualTo(array('.jpg', '.jpeg', '.jpf', '.png'));
         
-        $this->assert->object($set->setPhotoExtensions(
+        $this->assert->object($set->setExtensions(
             $new_ext = array('.tiff', '.gif')
         ))->isInstanceOf('\Smak\Portfolio\Set');
         
-        $this->assert->array($set->getPhotoExtensions())
+        $this->assert->array($set->getExtensions())
              ->isEqualTo($new_ext);
         
         $this->assert->exception(function() use ($set) {
-            $set->setPhotoExtensions(array());
+            $set->setExtensions(array());
         })->isInstanceOf('\InvalidArgumentException');
     }
     
-    public function testInfoExtension()
+    public function testTemplateExtension()
     {
         $set = $this->instance;
         
-        $this->assert->array($set->getInfoExtensions())
+        $this->assert->array($set->getTemplateExtensions())
              ->isEqualTo(array('.html.twig'));
         
-        $this->assert->object($set->setInfoExtensions(
+        $this->assert->object($set->setTemplateExtensions(
             $new_ext = array('.html', '.txt')
         ))->isInstanceOf('\Smak\Portfolio\Set');
         
-        $this->assert->array($set->getInfoExtensions())
+        $this->assert->array($set->getTemplateExtensions())
              ->isEqualTo($new_ext);
         
         $this->assert->exception(function() use ($set) {
-            $set->setInfoExtensions(array());
+            $set->setTemplateExtensions(array());
         })->isInstanceOf('\InvalidArgumentException');
     }
     
-    public function testGetPhotos()
+    public function testGetAll()
     {
-        $this->assert->object($this->instance->getPhotos())
+        $this->assert->object($this->instance->getAll())
              ->isInstanceOf('\ArrayIterator');
     }
     
-    public function testGetPhotoById()
+    public function testGetById()
     {
         $set = $this->instance;
         $tree = $this->fs->getTree();
@@ -95,18 +98,18 @@ class Set extends atoum\test
         sort($tree);
         
         $this->assert->exception(function() use ($set) {
-            $set->getPhotoById("foo");
+            $set->getById("foo");
         })->isInstanceOf('\InvalidArgumentException');
         
-        $this->assert->string($set->getPhotoById(2)->getFileName())
+        $this->assert->string($set->getById(2)->getFilename())
              ->isEqualTo($tree[2]);
         
         $this->assert->exception(function() use ($set) {
-            $set->getPhotoById(123);
+            $set->getById(123);
         })->isInstanceOf('\OutOfRangeException');
     }
     
-    public function testGetPhotoByName()
+    public function testGetByName()
     {
         $set = $this->instance;
         $tree = $this->fs->getTree();
@@ -115,23 +118,22 @@ class Set extends atoum\test
         sort($tree);
         
         $this->assert->exception(function() use ($set) {
-            $set->getPhotoByName(23.34);
+            $set->getByName(23.34);
         })->isInstanceOf('\InvalidArgumentException');
         
-        $this->assert->string($set->getPhotoByName('sample-4')->getFileName())
+        $this->assert->string($set->getByName('sample-4')->getFilename())
              ->isEqualTo($tree[3]);
         
-        $this->assert->exception(function() use ($set) {
-            $set->getPhotoByName('foobar');
-        })->isInstanceOf('\UnexpectedValueException');
+        $this->assert->variable($set->getByName('foobar'))
+            ->isNull();
     }
     
-    public function testGetInfo()
+    public function testGetTemplate()
     {
-        $this->assert->object($this->instance->getInfo())
+        $this->assert->object($this->instance->getTemplate())
              ->isInstanceOf('\SplFileInfo');
         
-        $this->assert->string($this->instance->getInfo()->getFileName())
+        $this->assert->string($this->instance->getTemplate()->getFilename())
              ->isEqualTo('chile.html.twig');
     }
     
@@ -173,59 +175,38 @@ class Set extends atoum\test
         $this->assert->string($last->getFilename())
              ->isEqualTo($expected);
     }
-    
-    public function testGetPhotoInNaturalOrder()
-    {
-        $tree = $this->fs->getTree();
-        $expected = $tree['Travels']['Chile'];
-        array_pop($expected);
-        sort($expected);
-        
-        foreach ($this->instance->getPhotos() as $file) {
-            $results[] = $file->getFilename();
-        }
-        
-        $this->assert->array($expected)->isEqualTo($results);
-    }
 
-    public function testGetPhotoInReversedNaturalOrder()
+    public function testGetInReversedOrder()
     {
         $tree = $this->fs->getTree();
         $expected = $tree['Travels']['Chile'];
         array_pop($expected);
         sort($expected);
         
-        foreach ($this->instance->sort(SortHelper::reverse())->getPhotos() as $file) {
+        foreach ($this->instance->sort(SortHelper::reverse())->getAll() as $file) {
             $results[] = $file->getFilename();
         }
         
         $this->assert->array(array_reverse($expected))->isEqualTo($results);
     }
-    
-    public function testGetPhotoByMTimeNewestFirst()
+
+    public function testGetSetAsCollection()
     {
         $tree = $this->fs->getTree();
-        $expected = $tree['Travels']['Chile'];
-        array_pop($expected);
-        
-        foreach ($this->instance->sort(SortHelper::byNewest())->getPhotos() as $file) {
-            $results[] = $file->getFilename();
+        $setRoot = new \SplFileInfo($this->fs->getRoot() . '/Travels');
+        $this->instance = new \Smak\Portfolio\Set($setRoot);
+        $expected = array_keys($tree['Travels']);
+
+        $this->assert->object($collection = $this->instance->asCollection())
+             ->isInstanceOf('\Smak\Portfolio\Collection');
+
+        $this->assert->object($collection)
+             ->isInstanceOf('\Symfony\Component\Finder\Finder');
+
+        foreach ($collection->getAll() as $set) {
+            $results[] = $set->name;
         }
-        
-        $this->assert->array(array_reverse($expected))
-             ->isEqualTo($results);
-    }
-    
-    public function testGetPhotoByMTimeOldestFirst()
-    {
-        $tree = $this->fs->getTree();
-        $expected = $tree['Travels']['Chile'];
-        array_pop($expected);
-        
-        foreach ($this->instance->sort(SortHelper::byOldest())->getPhotos() as $file) {
-            $results[] = $file->getFilename();
-        }
-        
+
         $this->assert->array($expected)->isEqualTo($results);
     }
     

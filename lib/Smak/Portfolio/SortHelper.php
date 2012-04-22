@@ -20,7 +20,7 @@ class SortHelper
     public static function byNewest()
     {
         return function(\SplFileInfo $a, \SplFileInfo $b) {
-            return $a->getMTime() > $b->getMTime() ? -1 : 1;
+            return !($a->getMTime() > $b->getMTime());
         };
     }
     
@@ -33,7 +33,7 @@ class SortHelper
     public static function byOldest()
     {
         return function(\SplFileInfo $a, \SplFileInfo $b) {
-            return $a->getMTime() < $b->getMTime() ? -1 : 1;
+            return ($a->getMTime() > $b->getMTime());
         };
     }
 

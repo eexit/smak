@@ -41,20 +41,20 @@ EOD;
         $setRoot = new \SplFileInfo($this->fs->getRoot() . '/Canon_450D/Sandrine');
         $this->set = new \Smak\Portfolio\Set($setRoot);
         
-        $this->photo = $this->set->getPhotoById(0);
+        $this->photo = $this->set->getById(0);
         $this->assert->string($this->photo->getFilename())
              ->isEqualTo('sample-1.jpg');
     }
     
-    public function testPhotoClassType()
+    public function testClassType()
     {
-        foreach ($this->set->getPhotos() as $photo) {
+        foreach ($this->set->getAll() as $photo) {
             $this->assert->object($photo)->isInstanceOf('\Smak\Portfolio\Photo');
             $this->assert->object($photo)->isInstanceOf('\SplFileInfo');
         }
     }
     
-    public function testPhotoHasRightSize()
+    public function testHasRightSize()
     {
         $this->assert->integer($this->photo->getSize())
              ->isEqualTo(self::IMG_SIZE);
@@ -66,7 +66,7 @@ EOD;
              ->isEqualTo(sprintf('%d %s', self::IMG_SIZE, 'b'));
     }
     
-    public function testPhotoComputedSize()
+    public function testGetComputedSize()
     {
         $this->assert->integer($this->photo->getWidth())
              ->isEqualTo(self::IMG_DIM);
@@ -78,7 +78,7 @@ EOD;
              ->isEqualTo(sprintf('width="%d" height="%d"', self::IMG_DIM, self::IMG_DIM));
     }
     
-    public function testPhotoType()
+    public function testGetPhotoType()
     {
         $this->assert->integer($this->photo->getPhotoType())
              ->isEqualTo(self::IMG_TYPE);

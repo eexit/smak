@@ -53,22 +53,22 @@ class SmakServiceProvider implements ServiceProviderInterface
                 return false;
             }
 
-            if (is_null($set->getInfo())) {
+            if (is_null($set->getTemplate())) {
                 return false;
             }
 
             $final_view = $app['smak.portfolio.view_path']
                 . DIRECTORY_SEPARATOR
-                . $set->getInfo()->getBasename();
+                . $set->getTemplate()->getBasename();
 
             // Checks if the templace view file exists in the destination view path
             // or checks if not outdated
             if (!is_file($final_view)
-                || (sha1_file($set->getInfo()->getRealPath()) !== sha1_file($final_view))) {
+                || (sha1_file($set->getTemplate()->getRealPath()) !== sha1_file($final_view))) {
                 
                 // Tries to copy the view file
-                if (!copy($set->getInfo()->getRealPath(), $final_view)) {
-                    throw new SmakServiceProviderException(sprintf('Unable to copy view file: "%s!"', $set->getInfo()->getBasename()));
+                if (!copy($set->getTemplate()->getRealPath(), $final_view)) {
+                    throw new SmakServiceProviderException(sprintf('Unable to copy view file: "%s!"', $set->getTemplate()->getBasename()));
                 }
             }
 

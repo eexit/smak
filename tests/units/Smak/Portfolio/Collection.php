@@ -9,7 +9,7 @@ use tests\Fs;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
-class Application extends atoum\test
+class Collection extends atoum\test
 {
     const FS_REL = '/../../../fs';
     
@@ -24,21 +24,24 @@ class Application extends atoum\test
     public function beforeTestMethod($method)
     {
         $this->fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
-        $this->instance = new \Smak\Portfolio\Application(__DIR__ . self::FS_REL);
+        $this->instance = new \Smak\Portfolio\Collection(__DIR__ . self::FS_REL);
     }
     
     public function testClassDeclaration()
     {
         $this->assert->object($this->instance)
+             ->isInstanceOf('\Smak\Portfolio\Portfolio');
+
+        $this->assert->object($this->instance)
              ->isInstanceOf('\Symfony\Component\Finder\Finder');
         
-        $this->assert->class('\Smak\Portfolio\Application')
+        $this->assert->class('\Smak\Portfolio\Collection')
               ->hasInterface('\Countable');
     }
     
-    public function testGetSets()
+    public function testGetAll()
     {
-        $this->assert->object($sets = $this->instance->getSets())
+        $this->assert->object($sets = $this->instance->getAll())
              ->isInstanceOf('\ArrayIterator');
 
         foreach ($sets as $set) {
@@ -50,77 +53,102 @@ class Application extends atoum\test
     public function testCount()
     {
         $this->assert->integer($this->instance->count())
-             ->isEqualTo(5);
+             ->isEqualTo(2);
+    }
+
+    public function testGetById()
+    {
+        $collection = $this->instance;
+        $tree = $this->fs->getTree();
+        $tree = array_keys($tree);
+        
+        $this->assert->exception(function() use ($collection) {
+            $collection->getById("foo");
+        })->isInstanceOf('\InvalidArgumentException');
+        
+        $this->assert->string($collection->getById(1)->getSplInfo()->getBasename())
+             ->isEqualTo($tree[1]);
+        
+        $this->assert->exception(function() use ($collection) {
+            $collection->getById(123);
+        })->isInstanceOf('\OutOfRangeException');
     }
     
-    public function testGetSet()
+    public function testGetByName()
     {
-        $this->assert->object($this->instance->getSet('Chile'))
+        $collection = $this->instance;
+
+        $this->assert->exception(function() use ($collection) {
+            $collection->getByName(23.34);
+        })->isInstanceOf('\InvalidArgumentException');
+
+        $this->assert->object($set = $collection->getByName('Travels'))
              ->isInstanceOf('\Smak\Portfolio\Set');
+
+        $this->assert->string($set->name)->isEqualTo('Travels');
+        
+        $this->assert->variable($collection->getByName('foobar'))
+            ->isNull();
     }
 
-    public function testGetSetsInNaturalOrder()
+    public function testGetFirst()
+    {
+        $first = $this->instance->getFirst();
+        $tree = array_keys($this->fs->getTree());
+        $expected = array_shift($tree);
+        
+        $this->assert->object($first)
+             ->isInstanceOf('\Smak\Portfolio\Set');
+        
+        $this->assert->string($first->getSplInfo()->getBasename())
+             ->isEqualTo($expected);
+    }
+
+    public function testGetLast()
+    {
+        $first = $this->instance->getLast();
+        $tree = array_keys($this->fs->getTree());
+        $expected = array_pop($tree);
+        
+        $this->assert->object($first)
+             ->isInstanceOf('\Smak\Portfolio\Set');
+        
+        $this->assert->string($first->getSplInfo()->getBasename())
+             ->isEqualTo($expected);
+    }
+
+    public function testGetAllInReversedOrder()
     {
         $dir = __DIR__ . self::FS_REL . '/Canon_450D';
-        $this->instance = new \Smak\Portfolio\Application($dir);
+        $this->instance = new \Smak\Portfolio\Collection($dir);
 
         $tree = $this->fs->getTree();
         $expected = array_keys($tree['Canon_450D']);
         sort($expected);
         
-        foreach ($this->instance->getSets() as $set) {
-            $results[] = $set->name;
-        }
-        
-        $this->assert->array($expected)->isEqualTo($results);
-    }
-
-    public function testGetSetsInReversedNaturalOrder()
-    {
-        $dir = __DIR__ . self::FS_REL . '/Canon_450D';
-        $this->instance = new \Smak\Portfolio\Application($dir);
-
-        $tree = $this->fs->getTree();
-        $expected = array_keys($tree['Canon_450D']);
-        sort($expected);
-        
-        foreach ($this->instance->sort(SortHelper::reverse())->getSets() as $set) {
+        foreach ($this->instance->sort(SortHelper::reverse())->getAll() as $set) {
             $results[] = $set->name;
         }
         
         $this->assert->array(array_reverse($expected))->isEqualTo($results);
     }
     
-    public function testGetSetsByMTimeNewestFirst()
+    public function testGetCollectionAsSet()
     {
-        $dir = __DIR__ . self::FS_REL . '/Canon_450D';
-        $this->instance = new \Smak\Portfolio\Application($dir);
-
+        $dir = __DIR__ . self::FS_REL . '/Canon_450D/2012-12-12';
+        $this->instance = new \Smak\Portfolio\Collection($dir);
         $tree = $this->fs->getTree();
-        $expected = array_keys($tree['Canon_450D']);
-        sort($expected);
-        
-        foreach ($this->instance->sort(SortHelper::byNewest())->getSets() as $set) {
-            $results[] = $set->name;
-        }
-        
-        $this->assert->array($expected)->isEqualTo($results);   
-    }
+        $expected = $tree['Canon_450D']['2012-12-12'];
 
-    public function testGetSetsByMTimeOlderFirst()
-    {
-        $dir = __DIR__ . self::FS_REL . '/Canon_450D';
-        $this->instance = new \Smak\Portfolio\Application($dir);
+        $this->assert->object($set = $this->instance->asSet())
+            ->isInstanceOf('\Smak\Portfolio\Set');
 
-        $tree = $this->fs->getTree();
-        $expected = array_keys($tree['Canon_450D']);
-        sort($expected);
-        
-        foreach ($this->instance->sort(SortHelper::byOldest())->getSets() as $set) {
-            $results[] = $set->name;
-        }
-        
-        $this->assert->array(array_reverse($expected))->isEqualTo($results);   
+        $this->assert->object($set)
+            ->isInstanceOf('\Symfony\Component\Finder\Finder');
+
+        $this->assert->integer($set->count())->isEqualTo(count($expected) - 1);
+        $this->assert->string($set->getTemplate()->getFilename())
+            ->isEqualTo(array_pop($expected));
     }
     
     public function tearDown()
@@ -135,13 +163,13 @@ class Application extends atoum\test
             '2012-12-12'  => array(
                 'sample-1.jpg',
                 'sample-2.jpg',
-                'sandrine.twig'
+                '2012-12-12.html.twig'
             ),
             '2010-10-01'  => array(
                 'sample-1.jpg',
                 'sample-2.jpg',
                 'sample-3.jpg',
-                'weddings.twig'
+                '2010-10-01.html.twig'
             )),'Travels'            => array(
             'Chile'     => array(
                 'sample-1.jpeg',
