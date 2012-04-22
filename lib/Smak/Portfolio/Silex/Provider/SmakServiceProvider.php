@@ -2,9 +2,9 @@
 
 namespace Smak\Portfolio\Silex\Provider;
 
-use Smak\Portfolio\Application;
 use Smak\Portfolio\Set;
-use Silex\Application as SilexApplication;
+use Smak\Portfolio\Collection;
+use Silex\Application;
 use Silex\ServiceProviderInterface;
 
 
@@ -23,7 +23,7 @@ class SmakServiceProvider implements ServiceProviderInterface
      * @param Silex\Application $app The Silex application
      * @throws Smak\Portfolio\Silex\Provider\SmakServiceProviderException
      */
-    public function register(SilexApplication $app)
+    public function register(Application $app)
     {
         // Checks the presence of required parameter
         if (empty($app['smak.portfolio.content_path'])) {
@@ -42,7 +42,7 @@ class SmakServiceProvider implements ServiceProviderInterface
 
         // Registers the application
         $app['smak.portfolio'] = $app->share(function() use ($app) {
-            return new Application($app['smak.portfolio.content_path']);
+            return new Collection($app['smak.portfolio.content_path']);
         });
 
         // Set loader Silex helper
