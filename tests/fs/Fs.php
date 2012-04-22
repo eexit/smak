@@ -137,8 +137,8 @@ class Fs
                     return false;
                 }
                 
-                if ($this->_diffTime) {
-                    sleep(1);
+                if ($this->_diffTime && !touch($dir, time() - 3600)) {
+                    return false;
                 }
                 
                 if (!$this->_buildTree($files)) {
@@ -146,12 +146,10 @@ class Fs
                 }
                 chdir('..');
             } else {
-                if (!touch($files)) {
+                if ($this->_diffTime && !touch($files, time() - 3600)) {
                     return false;
-                }
-                
-                if ($this->_diffTime) {
-                    sleep(1);
+                } elseif (!touch($files)) {
+                    return false;
                 }
             }
         }
