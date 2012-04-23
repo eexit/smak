@@ -27,9 +27,9 @@ class Set extends Portfolio
     public $name = null;
     
     /**
-     * Set technical info (instance of \SplFileInfo)
+     * Set real path
      */
-    protected $_set_info;
+    protected $_set_path;
     
     /**
      * Class constructor
@@ -39,7 +39,7 @@ class Set extends Portfolio
     public function __construct(\SplFileInfo $set_info)
     {
         parent::create();
-        $this->_set_info = $set_info;
+        $this->_set_path = $set_info->getRealPath();
         $this->name = $set_info->getFilename();
         $this->files()
              ->in($set_info->getRealPath())
@@ -48,6 +48,16 @@ class Set extends Portfolio
         foreach ($this->_allowed_ext as $ext) {
             $this->name(sprintf('/%s$/i', $ext));
         }
+    }
+
+    /**
+     * Returns needed parameters for serialization
+     *
+     * @return array
+     */
+    public function __sleep()
+    {
+        return array('name', '_set_path');
     }
     
     /**
@@ -152,7 +162,7 @@ class Set extends Portfolio
     {
         foreach ($this->_template_ext as $ext) {
             
-            $info_file = $this->_set_info->getRealPath()
+            $info_file = $this->getSplInfo()->getRealPath()
                 . DIRECTORY_SEPARATOR
                 . strtolower($this->name)
                 . $ext;
@@ -171,7 +181,7 @@ class Set extends Portfolio
      */
     public function getSplInfo()
     {
-        return $this->_set_info;
+        return new \SplFileInfo($this->_set_path);
     }
 
     /**

@@ -209,6 +209,19 @@ class Set extends atoum\test
 
         $this->assert->array($expected)->isEqualTo($results);
     }
+
+    public function testSerialization()
+    {
+        $set_root = $this->instance->getSplInfo()->getRealPath();
+        $set_name = $this->instance->name;
+        $unserialized_instance = unserialize(serialize($this->instance));
+
+        $this->assert->string($unserialized_instance->name)
+            ->isEqualTo($set_name);
+
+        $this->assert->string($unserialized_instance->getSplInfo()->getRealPath())
+            ->isEqualTo($set_root);
+    }
     
     public function tearDown()
     {
