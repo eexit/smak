@@ -30,6 +30,11 @@ class Set extends Portfolio
      * Set real path
      */
     protected $_set_path;
+
+    /**
+     * Helpers
+     */
+    public $helpers = array();
     
     /**
      * Class constructor
@@ -57,7 +62,7 @@ class Set extends Portfolio
      */
     public function __sleep()
     {
-        return array('name', '_set_path');
+        return array('name', '_set_path', 'helpers');
     }
     
     /**
