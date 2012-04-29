@@ -211,9 +211,16 @@ class Set extends atoum\test
     }
 
     public function testSerialization()
-    {
+    {   
+        $helpers = array(
+            'foo'   => 'bar',
+            'bar'   => 'baz',
+            'time'  => time()
+        );
+
         $set_root = $this->instance->getSplInfo()->getRealPath();
         $set_name = $this->instance->name;
+        $this->instance->helpers = $helpers;
         $unserialized_instance = unserialize(serialize($this->instance));
 
         $this->assert->string($unserialized_instance->name)
@@ -221,6 +228,12 @@ class Set extends atoum\test
 
         $this->assert->string($unserialized_instance->getSplInfo()->getRealPath())
             ->isEqualTo($set_root);
+
+        $this->assert->array($unserialized_instance->helpers)
+            ->isEqualTo($helpers);
+
+        $this->assert->integer($unserialized_instance->count())
+            ->isEqualTo(4);
     }
     
     public function tearDown()

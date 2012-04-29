@@ -64,6 +64,14 @@ class Set extends Portfolio
     {
         return array('name', '_set_path', 'helpers');
     }
+
+    /**
+     * Re-builds the set when unserialized
+     */
+    public function __wakeup()
+    {
+        self::__construct($this->getSplInfo());
+    }
     
     /**
      * Set photo content getter
