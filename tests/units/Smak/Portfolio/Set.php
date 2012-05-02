@@ -195,7 +195,7 @@ class Set extends atoum\test
         array_pop($expected);
         sort($expected);
         
-        foreach ($this->instance->sort(SortHelper::reverse())->getAll() as $file) {
+        foreach ($this->instance->sort(SortHelper::reverseName())->getAll() as $file) {
             $results[] = $file->getFilename();
         }
         

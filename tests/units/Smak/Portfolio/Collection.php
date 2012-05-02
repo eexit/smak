@@ -126,7 +126,7 @@ class Collection extends atoum\test
         $expected = array_keys($tree['Canon_450D']);
         sort($expected);
         
-        foreach ($this->instance->sort(SortHelper::reverse())->getAll() as $set) {
+        foreach ($this->instance->sort(SortHelper::reverseName())->getAll() as $set) {
             $results[] = $set->name;
         }
         

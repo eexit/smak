@@ -43,10 +43,10 @@ class SortHelper
      * @static
      * @return \Closure
      */
-    public static function reverse()
+    public static function reverseName()
     {
         return function (\SplFileInfo $a, \SplFileInfo $b) {
-            return !strcmp($a->getBasename(), $b->getBasename());
+            return strcmp($b->getRealPath(), $a->getRealPath());
         };
     }
 }
