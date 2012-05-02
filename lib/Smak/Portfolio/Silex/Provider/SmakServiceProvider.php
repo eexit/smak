@@ -52,7 +52,7 @@ class SmakServiceProvider implements ServiceProviderInterface
 
         // Set loader Silex helper
         $app['smak.portfolio.load'] = $app->protect(function($set) use ($app) {
-            if (null == $set->getTemplate()) {
+            if (null == $set->getTemplate() || 0  == $set->count()) {
                 return false;
             }
 

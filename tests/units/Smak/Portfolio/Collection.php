@@ -53,7 +53,7 @@ class Collection extends atoum\test
     public function testCount()
     {
         $this->assert->integer($this->instance->count())
-             ->isEqualTo(2);
+             ->isEqualTo(5);
     }
 
     public function testGetById()
@@ -66,7 +66,7 @@ class Collection extends atoum\test
             $collection->getById("foo");
         })->isInstanceOf('\InvalidArgumentException');
         
-        $this->assert->string($collection->getById(1)->getSplInfo()->getBasename())
+        $this->assert->string($collection->getById(3)->getSplInfo()->getBasename())
              ->isEqualTo($tree[1]);
         
         $this->assert->exception(function() use ($collection) {
@@ -106,15 +106,15 @@ class Collection extends atoum\test
 
     public function testGetLast()
     {
-        $first = $this->instance->getLast();
-        $tree = array_keys($this->fs->getTree());
-        $expected = array_pop($tree);
+        $tree = $this->fs->getTree();
+        $last = $this->instance->getLast();
+        $expected = array_keys(array_pop($tree));
         
-        $this->assert->object($first)
+        $this->assert->object($last)
              ->isInstanceOf('\Smak\Portfolio\Set');
         
-        $this->assert->string($first->getSplInfo()->getBasename())
-             ->isEqualTo($expected);
+        $this->assert->string($last->getSplInfo()->getBasename())
+             ->isEqualTo($expected[0]);
     }
 
     public function testGetAllInReversedOrder()
@@ -160,7 +160,7 @@ class Collection extends atoum\test
              ->isEqualTo($collection_dir);
         
         $this->assert->integer($unserialized_instance->count())
-             ->isEqualTo(2);
+             ->isEqualTo(5);
     }
     
     public function tearDown()

@@ -17,23 +17,16 @@ class Collection extends Portfolio
     protected $_dir;
 
     /**
-     * The Finder depth to parse
-     */
-    protected $_depth;
-
-    /**
      * Class constructor
      * 
      * @param string $dir Collection parent directory
      * @param int $depth The Finder depth to parse
      */
-    public function __construct($dir = __DIR__, $depth = 0)
+    public function __construct($dir = __DIR__)
     {
         parent::create();
         $this->_dir = $dir;
-        $this->_depth = intval($depth);
-        $this->depth($this->_depth)
-             ->directories()
+        $this->directories()
              ->in($this->_dir)
              ->ignoreDotFiles(true);
     }
@@ -43,7 +36,7 @@ class Collection extends Portfolio
      */
     public function __wakeup()
     {
-        self::__construct($this->_dir, $this->_depth);
+        self::__construct($this->_dir);
     }
 
     /**
