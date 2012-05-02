@@ -157,7 +157,7 @@ class Set extends Portfolio
             
             $info_file = $this->getSplInfo()->getRealPath()
                 . DIRECTORY_SEPARATOR
-                . strtolower($this->name)
+                . $this->getSplInfo()->getBasename()
                 . $ext;
                 
             if (is_file($info_file)) {

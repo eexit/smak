@@ -81,6 +81,11 @@ class SmakServiceProvider implements ServiceProviderInterface
                 }
             }
 
+            // Shrinks the name if the set name starts by 00
+            if (preg_match('/^00/', $set->name)) {
+                $set->name = substr($set->name, 3);
+            }
+
             $twig_view_path = sprintf('%s%s', substr($app['smak.portfolio.view_path'], strlen($app['twig.path'])), $set->smak_subpath);
             $set->twig_subpath = sprintf('%s%s%s', $twig_view_path, DIRECTORY_SEPARATOR, $set->getTemplate()->getFilename());
             return $set;
