@@ -22,19 +22,9 @@ class Set extends Portfolio
     protected $_allowed_ext = array('.jpg', '.jpeg', '.jpf', '.png');
     
     /**
-     * Set name
-     */
-    public $name = null;
-    
-    /**
      * Set real path
      */
     protected $_set_path;
-
-    /**
-     * Helpers
-     */
-    public $helpers = array();
     
     /**
      * Class constructor
@@ -53,16 +43,6 @@ class Set extends Portfolio
         foreach ($this->_allowed_ext as $ext) {
             $this->name(sprintf('/%s$/i', $ext));
         }
-    }
-
-    /**
-     * Returns needed parameters for serialization
-     *
-     * @return array
-     */
-    public function __sleep()
-    {
-        return array('name', '_set_path', 'helpers');
     }
 
     /**

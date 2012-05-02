@@ -51,16 +51,15 @@ class SmakServiceProvider implements ServiceProviderInterface
         });
 
         // Set loader Silex helper
-        // Set loader Silex helper
         $app['smak.portfolio.load'] = $app->protect(function($set) use ($app) {
             if (null == $set->getTemplate()) {
                 return false;
             }
 
-            $set->helpers['smak_subpath'] = dirname(substr($set->getSplInfo()->getRealPath(), strlen(realpath($app['smak.portfolio.content_path']))));
+            $set->smak_subpath = dirname(substr($set->getSplInfo()->getRealPath(), strlen(realpath($app['smak.portfolio.content_path']))));
 
             $final_view = $app['smak.portfolio.view_path']
-                . $set->helpers['smak_subpath']
+                . $set->smak_subpath
                 . DIRECTORY_SEPARATOR
                 . $set->getTemplate()->getBasename();
 
@@ -69,9 +68,9 @@ class SmakServiceProvider implements ServiceProviderInterface
             if (!is_file($final_view)
                 || (sha1_file($set->getTemplate()->getRealPath()) !== sha1_file($final_view))) {
 
-                if (!is_dir($app['smak.portfolio.view_path'] . $set->helpers['smak_subpath'])) {
+                if (!is_dir($app['smak.portfolio.view_path'] . $set->smak_subpath)) {
                     // Tries the create the parents directories for the view file
-                    if (!mkdir($app['smak.portfolio.view_path'] . $set->helpers['smak_subpath'], 0700, true)) {
+                    if (!mkdir($app['smak.portfolio.view_path'] . $set->smak_subpath, 0700, true)) {
                         throw new SmakServiceProviderException(sprintf('Unable to create the directory for view file: "%s!"', $set->getTemplate()->getBasename()));
                     }
                 }
@@ -82,8 +81,8 @@ class SmakServiceProvider implements ServiceProviderInterface
                 }
             }
 
-            $twig_view_path = sprintf('%s%s', substr($app['smak.portfolio.view_path'], strlen($app['twig.path'])), $set->helpers['smak_subpath']);
-            $set->helpers['twig_subpath'] = sprintf('%s%s%s', $twig_view_path, DIRECTORY_SEPARATOR, $set->getTemplate()->getFilename());
+            $twig_view_path = sprintf('%s%s', substr($app['smak.portfolio.view_path'], strlen($app['twig.path'])), $set->smak_subpath);
+            $set->twig_subpath = sprintf('%s%s%s', $twig_view_path, DIRECTORY_SEPARATOR, $set->getTemplate()->getFilename());
             return $set;
         });
     }

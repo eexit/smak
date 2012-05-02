@@ -14,11 +14,80 @@ use Symfony\Component\Finder\Finder;
 abstract class Portfolio extends Finder implements \Countable
 {
     /**
+     * Object datas
+     */
+    protected $_data = array();
+
+    /**
      * Gets all items
      *
      * @abstract
      */
     abstract public function getAll();
+
+    /**
+     * Unserialization helper
+     *
+     * @abstract
+     */
+    abstract public function __wakeup();
+
+    /**
+     * Returns saved properties for serialization
+     *
+     * @return array
+     */
+    public function __sleep()
+    {
+        return array_keys(get_object_vars($this));
+    }
+
+    /**
+     * Object data setter
+     *
+     * @param string $name
+     * @param mixed $value
+     */
+    public function __set($name, $value)
+    {
+        $this->_data[$name] = $value;
+    }
+
+    /**
+     * Object data getter
+     *
+     * @param string $name
+     * @return mixed | null
+     */
+    public function __get($name)
+    {
+        if (array_key_exists($name, $this->_data)) {
+            return $this->_data[$name];
+        }
+
+        return null;
+    }
+
+    /**
+     * Object data presence tester
+     *
+     * @param string $name
+     * @return boolean
+     */
+    public function __isset($name)
+    {
+        return isset($this->_data[$name]);
+    }
+
+    /**
+     * Object data remover
+     *
+     * @param string $name
+     */
+    public function __unset($name)
+    {
+        unset($this->_data[$name]);
+    }
 
     /**
      * Mandatory count method

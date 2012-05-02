@@ -150,6 +150,18 @@ class Collection extends atoum\test
         $this->assert->string($set->getTemplate()->getFilename())
             ->isEqualTo(array_pop($expected));
     }
+
+    public function testSerialization()
+    {
+        $collection_dir = $this->instance->asSet()->getSplInfo()->getRealPath();
+        $unserialized_instance = unserialize(serialize($this->instance));
+
+        $this->assert->string($unserialized_instance->asSet()->getSplInfo()->getRealPath())
+             ->isEqualTo($collection_dir);
+        
+        $this->assert->integer($unserialized_instance->count())
+             ->isEqualTo(2);
+    }
     
     public function tearDown()
     {

@@ -26,6 +26,8 @@ class Set extends atoum\test
         $this->fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
         $setRoot = new \SplFileInfo($this->fs->getRoot() . '/Travels/Chile');
         $this->instance = new \Smak\Portfolio\Set($setRoot);
+        $this->assert->string($this->instance->name)
+            ->isEqualTo('Chile');
     }
     
     public function testClassDeclaration()
@@ -58,6 +60,11 @@ class Set extends atoum\test
         
         $this->assert->array($set->getExtensions())
              ->isEqualTo($new_ext);
+
+        $unserialized_set = unserialize(serialize($set));
+
+        $this->assert->array($unserialized_set->getExtensions())
+             ->isEqualTo($new_ext);
         
         $this->assert->exception(function() use ($set) {
             $set->setExtensions(array());
@@ -76,6 +83,11 @@ class Set extends atoum\test
         ))->isInstanceOf('\Smak\Portfolio\Set');
         
         $this->assert->array($set->getTemplateExtensions())
+             ->isEqualTo($new_ext);
+
+        $unserialized_set = unserialize(serialize($set));
+
+        $this->assert->array($unserialized_set->getTemplateExtensions())
              ->isEqualTo($new_ext);
         
         $this->assert->exception(function() use ($set) {
@@ -220,7 +232,11 @@ class Set extends atoum\test
 
         $set_root = $this->instance->getSplInfo()->getRealPath();
         $set_name = $this->instance->name;
-        $this->instance->helpers = $helpers;
+
+        foreach ($helpers as $key => $value) {
+            $this->instance->$key = $value;
+        }
+
         $unserialized_instance = unserialize(serialize($this->instance));
 
         $this->assert->string($unserialized_instance->name)
@@ -229,11 +245,19 @@ class Set extends atoum\test
         $this->assert->string($unserialized_instance->getSplInfo()->getRealPath())
             ->isEqualTo($set_root);
 
-        $this->assert->array($unserialized_instance->helpers)
-            ->isEqualTo($helpers);
-
         $this->assert->integer($unserialized_instance->count())
             ->isEqualTo(4);
+
+        unset($unserialized_instance->foo);
+        array_shift($helpers);
+
+        foreach ($helpers as $key => $value) {
+            $this->assert->variable($unserialized_instance->$key)
+                ->isNotNull();
+
+            $this->assert->variable($unserialized_instance->$key)
+                ->isEqualTo($value);
+        }
     }
     
     public function tearDown()
