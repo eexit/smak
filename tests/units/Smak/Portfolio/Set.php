@@ -7,7 +7,7 @@ use Smak\Portfolio;
 use Smak\Portfolio\SortHelper;
 use tests\Fs;
 
-require_once __DIR__ . '/../../../bootstrap.php';
+require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 class Set extends atoum\test
 {

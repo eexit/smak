@@ -1,6 +1,0 @@
-[submodule "vendor/Symfony/src/Symfony/Component/ClassLoader"]
-	path = vendor/Symfony/src/Symfony/Component/ClassLoader
-	url = git://github.com/symfony/ClassLoader.git
-[submodule "vendor/Symfony/src/Symfony/Component/Finder"]
-	path = vendor/Symfony/src/Symfony/Component/Finder
-	url = git://github.com/symfony/Finder.git

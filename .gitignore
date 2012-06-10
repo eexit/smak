@@ -1,1 +1,3 @@
-update.sh
+composer.phar
+composer.lock
+vendor

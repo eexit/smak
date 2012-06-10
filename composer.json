@@ -1,0 +1,23 @@
+{
+    "name": "eexit/smak",
+    "type": "library",
+    "description": "Tools for PHP project development",
+    "keywords": [],
+    "homepage": "http://www.eexit.net",
+    "license": "MIT",
+    "authors": [
+        {
+            "name" : "Joris Berthelot",
+            "email": "admin@eexit.net"
+        }
+    ],
+    "require": {
+        "php"            : ">=5.3.10",
+        "mageekguy/atoum": "dev-master",
+        "symfony/finder" : "dev-master"
+    },
+    "autoload": {
+        "psr-0": { "Smak": "lib/" },
+        "classmap": [ "tests/fs/" ]
+    }
+}
