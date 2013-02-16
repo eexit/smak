@@ -124,6 +124,16 @@ class Fs
     {
         return $this->_root;
     }
+
+    /**
+     * Provides a random timestamp
+     *
+     * @return int
+     */
+    private function _getRandomTimestamp()
+    {
+        return mt_rand(1325372400, 1356994800);
+    }
     
     /**
      * FS tree internal builder (recursive calls)
@@ -133,8 +143,8 @@ class Fs
      */
     private function _buildTree($root)
     {
-        foreach ($root as $dir => $files) {
-            if (is_array($files)) {
+        foreach ($root as $dir => $file) {
+            if (is_array($file)) {
                 if (! is_dir($dir)) {
                     if (! mkdir($dir)) {
                         return false;
@@ -145,22 +155,23 @@ class Fs
                     return false;
                 }
                 
-                if ($this->_diffTime && ! touch($dir, time() - 3600)) {
+                if ($this->_diffTime && ! touch($dir, $this->_getRandomTimestamp(), $this->_getRandomTimestamp())) {
                     return false;
                 }
-                
-                if (! $this->_buildTree($files)) {
+
+                if (! $this->_buildTree($file)) {
                     return false;
                 }
                 chdir('..');
             } else {
-                if ($this->_diffTime && ! touch($files, time() - 3600)) {
+                if ($this->_diffTime && ! touch($file, $this->_getRandomTimestamp(), $this->_getRandomTimestamp())) {
                     return false;
-                } elseif (! touch($files)) {
+                } elseif (! touch($file)) {
                     return false;
                 }
             }
         }
+
         return true;
     }
 }

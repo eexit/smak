@@ -14,13 +14,14 @@ class Set extends atoum\test
     public function setUp()
     {
         $fs = new Fs($this->_fsTreeProvider());
-        $fs->setDiffTime(true)->clear()->build();
+        $fs->build();
         $this->boolean($fs->isBuilt())->isTrue();
     }
     
     public function beforeTestMethod($method)
     {
         $this->fs       = new Fs($this->_fsTreeProvider());
+        $this->fs->setDiffTime(true)->build();
         $setRoot        = new \SplFileInfo($this->fs->getRoot() . '/Travels/Chile');
         $this->instance = new \Smak\Portfolio\Set($setRoot);
 
