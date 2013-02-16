@@ -38,4 +38,13 @@ class SmakServiceProvider implements ServiceProviderInterface
             return new Collection($app['smak.portfolio.content_path']);
         });
     }
+
+    /**
+     * Service bootstrap (called once service is registered)
+     *
+     * @param Silex\Application $app The Silex application
+     */
+    public function boot(Application $app)
+    {
+    }
 }

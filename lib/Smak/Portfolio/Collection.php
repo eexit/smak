@@ -24,7 +24,7 @@ class Collection extends Portfolio
      */
     public function __construct($dir = __DIR__)
     {
-        parent::create();
+        parent::__construct();
         $this->_dir = $dir;
         $this->directories()
              ->in($this->_dir)

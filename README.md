@@ -1,5 +1,7 @@
 # Smak 2.00-dev
 
+[![Build Status](https://secure.travis-ci.org/eexit/Smak.png?branch=master)](http://travis-ci.org/eexit/Smak)
+
 ## Portfolio
 
 This application contains the engine which makes live my photography portfolio. It mainly uses the Finder component of Symfony2 as tree explorer dedicated to photography.

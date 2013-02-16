@@ -49,14 +49,17 @@ class Photo extends \SplFileInfo
         if (!extension_loaded('gd')) {
             throw \RuntimeException('GD PHP extension not loaded!');
         }
-        
-        list(
-            $this->_width,
-            $this->_height,
-            $this->_type,
-            $this->_html_attr
-        ) = getimagesize($this->getRealPath());
-        $this->_size = $this->_formatSize($this->getSize());
+
+        if ($this->getSize()) {
+            list(
+                $this->_width,
+                $this->_height,
+                $this->_type,
+                $this->_html_attr
+            ) = getimagesize($this->getRealPath());
+            
+            $this->_size = $this->_formatSize($this->getSize());    
+        }
     }
     
     /**

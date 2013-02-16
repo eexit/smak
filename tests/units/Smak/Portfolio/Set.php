@@ -10,63 +10,61 @@ use tests\Fs;
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 class Set extends atoum\test
-{
-    const FS_REL = '/../../../fs';
-    
+{   
     public function setUp()
     {
-        $fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
-        $fs->setDiffTime(true);
-        $fs->build();
-        $this->assert->boolean($fs->isBuilt())->isTrue();
+        $fs = new Fs($this->_fsTreeProvider());
+        $fs->setDiffTime(true)->clear()->build();
+        $this->boolean($fs->isBuilt())->isTrue();
     }
     
     public function beforeTestMethod($method)
     {
-        $this->fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
-        $setRoot = new \SplFileInfo($this->fs->getRoot() . '/Travels/Chile');
+        $this->fs       = new Fs($this->_fsTreeProvider());
+        $setRoot        = new \SplFileInfo($this->fs->getRoot() . '/Travels/Chile');
         $this->instance = new \Smak\Portfolio\Set($setRoot);
-        $this->assert->string($this->instance->name)
-            ->isEqualTo('Chile');
+
+        $this->string($this->instance->name)
+             ->isEqualTo('Chile');
     }
     
     public function testClassDeclaration()
     {
-        $this->assert->object($this->instance)
+        $this->object($this->instance)
              ->isInstanceOf('\Symfony\Component\Finder\Finder');
 
-        $this->assert->object($this->instance)
+        $this->object($this->instance)
              ->isInstanceOf('\Smak\Portfolio\Portfolio');
         
-        $this->assert->class('\Smak\Portfolio\Set')
+        $this->class('\Smak\Portfolio\Set')
              ->hasInterface('\Countable');
     }
+    
     public function testCount()
     {
-        $this->assert->integer($this->instance->count())
-             ->isEqualTo(4);
+        $this->integer($this->instance->count())->isEqualTo(4);
     }
     
     public function testExtensions()
     {
         $set = $this->instance;
         
-        $this->assert->array($set->getExtensions())
+        $this->array($set->getExtensions())
              ->isEqualTo(array('.jpg', '.jpeg', '.jpf', '.png'));
         
-        $this->assert->object($set->setExtensions(
+        $this->object($set->setExtensions(
             $new_ext = array('.tiff', '.gif')
         ))->isInstanceOf('\Smak\Portfolio\Set');
         
-        $this->assert->array($set->getExtensions())
+        $this->array($set->getExtensions())
              ->isEqualTo($new_ext);
 
         $unserialized_set = unserialize(serialize($set));
 
-        $this->assert->array($unserialized_set->getExtensions())
+        $this->array($unserialized_set->getExtensions())
              ->isEqualTo($new_ext);
         
-        $this->assert->exception(function() use ($set) {
+        $this->exception(function() use ($set) {
             $set->setExtensions(array());
         })->isInstanceOf('\InvalidArgumentException');
     }
@@ -75,102 +73,102 @@ class Set extends atoum\test
     {
         $set = $this->instance;
         
-        $this->assert->array($set->getTemplateExtensions())
+        $this->array($set->getTemplateExtensions())
              ->isEqualTo(array('.html.twig'));
         
-        $this->assert->object($set->setTemplateExtensions(
+        $this->object($set->setTemplateExtensions(
             $new_ext = array('.html', '.txt')
         ))->isInstanceOf('\Smak\Portfolio\Set');
         
-        $this->assert->array($set->getTemplateExtensions())
+        $this->array($set->getTemplateExtensions())
              ->isEqualTo($new_ext);
 
         $unserialized_set = unserialize(serialize($set));
 
-        $this->assert->array($unserialized_set->getTemplateExtensions())
+        $this->array($unserialized_set->getTemplateExtensions())
              ->isEqualTo($new_ext);
         
-        $this->assert->exception(function() use ($set) {
+        $this->exception(function() use ($set) {
             $set->setTemplateExtensions(array());
         })->isInstanceOf('\InvalidArgumentException');
     }
     
     public function testGetAll()
     {
-        $this->assert->object($this->instance->getAll())
+        $this->object($this->instance->getAll())
              ->isInstanceOf('\ArrayIterator');
     }
     
     public function testGetById()
     {
-        $set = $this->instance;
+        $set  = $this->instance;
         $tree = $this->fs->getTree();
         $tree = $tree['Travels']['Chile'];
         array_pop($tree);
         sort($tree);
         
-        $this->assert->exception(function() use ($set) {
+        $this->exception(function() use ($set) {
             $set->getById("foo");
         })->isInstanceOf('\InvalidArgumentException');
         
-        $this->assert->string($set->getById(2)->getFilename())
+        $this->string($set->getById(2)->getFilename())
              ->isEqualTo($tree[2]);
         
-        $this->assert->exception(function() use ($set) {
+        $this->exception(function() use ($set) {
             $set->getById(123);
         })->isInstanceOf('\OutOfRangeException');
     }
     
     public function testGetByName()
     {
-        $set = $this->instance;
+        $set  = $this->instance;
         $tree = $this->fs->getTree();
         $tree = $tree['Travels']['Chile'];
         array_pop($tree);
         sort($tree);
         
-        $this->assert->exception(function() use ($set) {
+        $this->exception(function() use ($set) {
             $set->getByName(23.34);
         })->isInstanceOf('\InvalidArgumentException');
         
-        $this->assert->string($set->getByName('sample-4')->getFilename())
+        $this->string($set->getByName('sample-4')->getFilename())
              ->isEqualTo($tree[3]);
         
-        $this->assert->variable($set->getByName('foobar'))
+        $this->variable($set->getByName('foobar'))
             ->isNull();
     }
     
     public function testGetTemplate()
     {
-        $this->assert->object($this->instance->getTemplate())
+        $this->object($this->instance->getTemplate())
              ->isInstanceOf('\SplFileInfo');
         
-        $this->assert->string($this->instance->getTemplate()->getFilename())
+        $this->string($this->instance->getTemplate()->getFilename())
              ->isEqualTo('Chile.html.twig');
     }
     
     public function testGetSetSplInfo()
     {
-        $this->assert->object($this->instance->getSplInfo())
+        $this->object($this->instance->getSplInfo())
              ->isInstanceOf('\SplFileInfo');
         
-        $this->assert->string($this->instance->getSplInfo()->getFilename())
+        $this->string($this->instance->getSplInfo()->getFilename())
              ->isEqualTo('Chile');
         
-        $this->assert->string($this->instance->getSplInfo()->getRealPath())
-             ->isEqualTo(realpath(__DIR__ . self::FS_REL) . '/Travels/Chile');
+        $this->string($this->instance->getSplInfo()->getRealPath())
+             ->isEqualTo($this->fs->getRoot() . '/Travels/Chile');
     }
     
     public function testGetFirst()
     {
-        $first = $this->instance->getFirst();
-        $tree = $this->fs->getTree();
+        $first    = $this->instance->getFirst();
+        $tree     = $this->fs->getTree();
         $expected = array_shift($tree['Travels']['Chile']);
         
-        $this->assert->object($first)
+        $this->object($first)
              ->isInstanceOf('\Smak\Portfolio\Photo');
         
-        $this->assert->string($first->getFilename())
+        $this->string($first->getFilename())
              ->isEqualTo($expected);
     }
     
@@ -181,10 +179,10 @@ class Set extends atoum\test
         array_pop($tree['Travels']['Chile']); // Removes the twig file from Tree
         $expected = array_pop($tree['Travels']['Chile']);
         
-        $this->assert->object($last)
+        $this->object($last)
              ->isInstanceOf('\Smak\Portfolio\Photo');
         
-        $this->assert->string($last->getFilename())
+        $this->string($last->getFilename())
              ->isEqualTo($expected);
     }
 
@@ -199,27 +197,27 @@ class Set extends atoum\test
             $results[] = $file->getFilename();
         }
         
-        $this->assert->array(array_reverse($expected))->isEqualTo($results);
+        $this->array(array_reverse($expected))->isEqualTo($results);
     }
 
     public function testGetSetAsCollection()
     {
-        $tree = $this->fs->getTree();
-        $setRoot = new \SplFileInfo($this->fs->getRoot() . '/Travels');
+        $tree           = $this->fs->getTree();
+        $setRoot        = new \SplFileInfo($this->fs->getRoot() . '/Travels');
         $this->instance = new \Smak\Portfolio\Set($setRoot);
-        $expected = array_keys($tree['Travels']);
+        $expected       = array_keys($tree['Travels']);
 
-        $this->assert->object($collection = $this->instance->asCollection())
+        $this->object($collection = $this->instance->asCollection())
              ->isInstanceOf('\Smak\Portfolio\Collection');
 
-        $this->assert->object($collection)
+        $this->object($collection)
              ->isInstanceOf('\Symfony\Component\Finder\Finder');
 
         foreach ($collection->getAll() as $set) {
             $results[] = $set->name;
         }
 
-        $this->assert->array($expected)->isEqualTo($results);
+        $this->array($expected)->isEqualTo($results);
     }
 
     public function testSerialization()
@@ -239,30 +237,30 @@ class Set extends atoum\test
 
         $unserialized_instance = unserialize(serialize($this->instance));
 
-        $this->assert->string($unserialized_instance->name)
-            ->isEqualTo($set_name);
+        $this->string($unserialized_instance->name)
+             ->isEqualTo($set_name);
 
-        $this->assert->string($unserialized_instance->getSplInfo()->getRealPath())
-            ->isEqualTo($set_root);
+        $this->string($unserialized_instance->getSplInfo()->getRealPath())
+             ->isEqualTo($set_root);
 
-        $this->assert->integer($unserialized_instance->count())
-            ->isEqualTo(4);
+        $this->integer($unserialized_instance->count())
+             ->isEqualTo(4);
 
         unset($unserialized_instance->foo);
         array_shift($helpers);
 
         foreach ($helpers as $key => $value) {
-            $this->assert->variable($unserialized_instance->$key)
-                ->isNotNull();
+            $this->variable($unserialized_instance->$key)
+                 ->isNotNull();
 
-            $this->assert->variable($unserialized_instance->$key)
-                ->isEqualTo($value);
+            $this->variable($unserialized_instance->$key)
+                 ->isEqualTo($value);
         }
     }
     
     public function tearDown()
     {
-        $fs = new Fs(__DIR__ . self::FS_REL, $this->_fsTreeProvider());
+        $fs = new Fs($this->_fsTreeProvider());
         $fs->clear();
     }
     

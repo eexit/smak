@@ -33,7 +33,7 @@ class Set extends Portfolio
      */
     public function __construct(\SplFileInfo $set_info)
     {
-        parent::create();
+        parent::__construct();
         $this->_set_path = $set_info->getRealPath();
         $this->name = $set_info->getFilename();
         $this->files()
