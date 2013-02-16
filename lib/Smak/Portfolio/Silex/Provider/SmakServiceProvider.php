@@ -20,19 +20,13 @@ class SmakServiceProvider implements ServiceProviderInterface
      * 
      * @param Silex\Application $app The Silex application
      * @throws Smak\Portfolio\Silex\Provider\SmakServiceProviderException
+     *
+     * Service parameters:
+     *  - smak.portfolio.content_path: The system root directory of the portfolio content
+     *  - smak.portfolio.public_path: The public (web) root directory of the portfolio content
      */
     public function register(Application $app)
     {
-        // Checks the presence of required parameter
-        if (empty($app['smak.portfolio.content_path'])) {
-            throw new SmakServiceProviderException('"smak.portfolio.content_path" parameter is mandatory!');
-        }
-
-        // Checks the presence of required parameter
-        if (empty($app['smak.portfolio.public_path'])) {
-            throw new SmakServiceProviderException('"smak.portfolio.public_path" parameter is mandatory!');
-        }
-
         // Registers the application
         $app['smak.portfolio'] = $app->share(function() use ($app) {
             return new Collection($app['smak.portfolio.content_path']);
