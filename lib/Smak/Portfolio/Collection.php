@@ -14,7 +14,7 @@ class Collection extends Portfolio
     /**
      * Collection technical info (string)
      */
-    protected $_dir;
+    protected $dir;
 
     /**
      * Class constructor
@@ -25,9 +25,9 @@ class Collection extends Portfolio
     public function __construct($dir = __DIR__)
     {
         parent::__construct();
-        $this->_dir = $dir;
+        $this->dir = $dir;
         $this->directories()
-             ->in($this->_dir)
+             ->in($this->dir)
              ->ignoreDotFiles(true);
     }
     
@@ -36,7 +36,7 @@ class Collection extends Portfolio
      */
     public function __wakeup()
     {
-        self::__construct($this->_dir);
+        self::__construct($this->dir);
     }
 
     /**
@@ -80,6 +80,6 @@ class Collection extends Portfolio
      */
     public function asSet()
     {
-        return new Set(new \SplFileInfo($this->_dir));
+        return new Set(new \SplFileInfo($this->dir));
     }
 }

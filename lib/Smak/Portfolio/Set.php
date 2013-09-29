@@ -14,17 +14,17 @@ class Set extends Portfolio
     /**
      * Allowed set template file extensions
      */
-    protected $_template_ext = array('.html.twig');
+    protected $template_ext = array('.html.twig');
     
     /**
      * Allowed set photography file extensions
      */
-    protected $_allowed_ext = array('.jpg', '.jpeg', '.jpf', '.png');
+    protected $allowed_ext = array('.jpg', '.jpeg', '.jpf', '.png');
     
     /**
      * Set real path
      */
-    protected $_set_path;
+    protected $set_path;
     
     /**
      * Class constructor
@@ -34,13 +34,13 @@ class Set extends Portfolio
     public function __construct(\SplFileInfo $set_info)
     {
         parent::__construct();
-        $this->_set_path = $set_info->getRealPath();
+        $this->set_path = $set_info->getRealPath();
         $this->name = $set_info->getFilename();
         $this->files()
              ->in($set_info->getRealPath())
              ->ignoreDotFiles(true);
              
-        foreach ($this->_allowed_ext as $ext) {
+        foreach ($this->allowed_ext as $ext) {
             $this->name(sprintf('/%s$/i', $ext));
         }
     }
@@ -77,7 +77,7 @@ class Set extends Portfolio
      */
     public function getExtensions()
     {
-        return $this->_allowed_ext;
+        return $this->allowed_ext;
     }
     
     /**
@@ -93,7 +93,7 @@ class Set extends Portfolio
             throw new \InvalidArgumentException('New allowed photo extension array must not be empty!');
         }
         
-        $this->_allowed_ext = $new_ext;
+        $this->allowed_ext = $new_ext;
         
         return $this;
     }
@@ -105,7 +105,7 @@ class Set extends Portfolio
      */
     public function getTemplateExtensions()
     {
-        return $this->_template_ext;
+        return $this->template_ext;
     }
     
     /**
@@ -121,7 +121,7 @@ class Set extends Portfolio
             throw new \InvalidArgumentException('New template file extension array must not be empty!');
         }
         
-        $this->_template_ext = $new_ext;
+        $this->template_ext = $new_ext;
         
         return $this;
     }
@@ -137,7 +137,7 @@ class Set extends Portfolio
         parent::getByName($name);
         
         foreach ($this->getAll() as $photo) {
-            foreach ($this->_allowed_ext as $ext) {
+            foreach ($this->allowed_ext as $ext) {
                 if ($name === $photo->getBasename($ext)) {
 
                     return $photo;
@@ -153,7 +153,7 @@ class Set extends Portfolio
      */
     public function getTemplate()
     {
-        foreach ($this->_template_ext as $ext) {
+        foreach ($this->template_ext as $ext) {
             
             $info_file = $this->getSplInfo()->getRealPath()
                 . DIRECTORY_SEPARATOR
@@ -174,7 +174,7 @@ class Set extends Portfolio
      */
     public function getSplInfo()
     {
-        return new \SplFileInfo($this->_set_path);
+        return new \SplFileInfo($this->set_path);
     }
 
     /**

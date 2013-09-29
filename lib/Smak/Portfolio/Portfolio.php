@@ -16,7 +16,7 @@ abstract class Portfolio extends Finder implements \Countable
     /**
      * Object datas
      */
-    protected $_data = array();
+    protected $data = array();
 
     /**
      * Gets all items
@@ -50,7 +50,7 @@ abstract class Portfolio extends Finder implements \Countable
      */
     public function __set($name, $value)
     {
-        $this->_data[$name] = $value;
+        $this->data[$name] = $value;
     }
 
     /**
@@ -61,8 +61,8 @@ abstract class Portfolio extends Finder implements \Countable
      */
     public function __get($name)
     {
-        if (array_key_exists($name, $this->_data)) {
-            return $this->_data[$name];
+        if (array_key_exists($name, $this->data)) {
+            return $this->data[$name];
         }
 
         return null;
@@ -76,7 +76,7 @@ abstract class Portfolio extends Finder implements \Countable
      */
     public function __isset($name)
     {
-        return isset($this->_data[$name]);
+        return isset($this->data[$name]);
     }
 
     /**
@@ -86,7 +86,7 @@ abstract class Portfolio extends Finder implements \Countable
      */
     public function __unset($name)
     {
-        unset($this->_data[$name]);
+        unset($this->data[$name]);
     }
 
     /**

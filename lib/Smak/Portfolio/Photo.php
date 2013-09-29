@@ -14,27 +14,27 @@ class Photo extends \SplFileInfo
     /**
      * Photo file type (IMAGE_XXX)
      */
-    protected $_type;
+    protected $type;
     
     /**
      * Photo width
      */
-    protected $_width;
+    protected $width;
     
     /**
      * Photo height
      */
-    protected $_height;
+    protected $height;
     
     /**
      * HTML photo size attribute
      */
-    protected $_html_attr;
+    protected $html_attr;
     
     /**
      * Human reading photo size
      */
-    protected $_size;
+    protected $size;
     
     /**
      * Class constructor
@@ -52,13 +52,13 @@ class Photo extends \SplFileInfo
 
         if ($this->getSize()) {
             list(
-                $this->_width,
-                $this->_height,
-                $this->_type,
-                $this->_html_attr
+                $this->width,
+                $this->height,
+                $this->type,
+                $this->html_attr
             ) = getimagesize($this->getRealPath());
             
-            $this->_size = $this->_formatSize($this->getSize());    
+            $this->size = $this->formatSize($this->getSize());    
         }
     }
     
@@ -69,7 +69,7 @@ class Photo extends \SplFileInfo
      */
     public function getPhotoType()
     {
-        return $this->_type;
+        return $this->type;
     }
     
     /**
@@ -79,7 +79,7 @@ class Photo extends \SplFileInfo
      */
     public function getWidth()
     {
-        return $this->_width;
+        return $this->width;
     }
     
     /**
@@ -89,7 +89,7 @@ class Photo extends \SplFileInfo
      */
     public function getHeight()
     {
-        return $this->_height;
+        return $this->height;
     }
     
     /**
@@ -99,7 +99,7 @@ class Photo extends \SplFileInfo
      */
     public function getHtmlAttr()
     {
-        return $this->_html_attr;
+        return $this->html_attr;
     }
     
     /**
@@ -109,7 +109,7 @@ class Photo extends \SplFileInfo
      */
     public function getHRSize()
     {
-        return $this->_size;
+        return $this->size;
     }
     
     /**
@@ -119,7 +119,7 @@ class Photo extends \SplFileInfo
      * @throws \InvalidArgumentException
      * @return string
      */
-    private function _formatSize($size)
+    private function formatSize($size)
     {
         if (0 > $size) {
             throw \InvalidArgumentException('File size cannot be lesser than 0 byte!');
