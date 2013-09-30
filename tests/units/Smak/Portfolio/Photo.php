@@ -2,13 +2,13 @@
 
 namespace Smak\Portfolio\tests\units;
 
-use mageekguy\atoum;
 use Smak\Portfolio;
-use tests\Fs;
+use Symfony\Component\Finder\Adapter;
+use tests\units\Smak\Portfolio\Fs;
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-class Photo extends atoum\test
+class Photo extends Fs\FsAdapter
 {   
     const IMG_DIM = 10;
     
@@ -24,71 +24,120 @@ EOD;
     
     public function setUp()
     {
-        $fs = new Fs($tree = $this->_fsTreeProvider());
-        $fs->clear()->build();
-        $this->boolean($fs->isBuilt())->isTrue();
-        
+        $this->buildFs();
+    }
+
+    public function buildFs()
+    {
+        $fs = new Fs\FsBuilder($this->fsTreeProvider());
+        $fs->setDiffTime(true)->build();
+
+        return $fs;
+    }
+
+    public function buildSet(Adapter\AdapterInterface $adapter)
+    {
+        $fs = $this->buildFs();
+        $tree = $fs->getTree();
+
         $photo_test = array_shift($tree['Canon_450D']['Sandrine']);
-        file_put_contents($fs->getRoot() . '/Canon_450D/Sandrine/' . $photo_test,
-        base64_decode(self::IMG_DATA), LOCK_EX);
+        $set_root = new \SplFileInfo($fs->getRoot()
+            . DIRECTORY_SEPARATOR
+            . 'Canon_450D'
+            . DIRECTORY_SEPARATOR
+            . 'Sandrine');
+        file_put_contents($set_root->getRealPath() . DIRECTORY_SEPARATOR. $photo_test,
+            base64_decode(self::IMG_DATA), LOCK_EX);
+
+        $set = new \Smak\Portfolio\Set($set_root);
+        $set->removeAdapters()->addAdapter($adapter);
+
+        return $set;
     }
     
     public function beforeTestMethod($method)
     {
-        $this->fs  = new Fs($this->_fsTreeProvider());
-        $setRoot   = new \SplFileInfo($this->fs->getRoot() . '/Canon_450D/Sandrine');
-        $this->set = new \Smak\Portfolio\Set($setRoot);
-        
-        $this->photo = $this->set->getById(0);
-        $this->string($this->photo->getFilename())
-             ->isEqualTo('sample-1.jpg');
+        foreach ($this->getValidAdapters() as $adapter) {
+            $photo = $this->getPhoto($adapter);
+            $this->string($photo->getFilename())
+                 ->isEqualTo('sample-1.jpg');
+        }
     }
     
-    public function testClassType()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testClassType(Adapter\AdapterInterface $adapter)
     {
-        foreach ($this->set->getAll() as $photo) {
+        $set = $this->buildSet($adapter);
+
+        foreach ($set->getAll() as $photo) {
             $this->object($photo)->isInstanceOf('\Smak\Portfolio\Photo');
             $this->object($photo)->isInstanceOf('\SplFileInfo');
         }
     }
     
-    public function testHasRightSize()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testHasRightSize(Adapter\AdapterInterface $adapter)
     {
-        $this->integer($this->photo->getSize())
+        $photo = $this->getPhoto($adapter);
+
+        $this->integer($photo->getSize())
              ->isEqualTo(self::IMG_SIZE);
     }
     
-    public function testGetHumanReadingSize()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetHumanReadingSize(Adapter\AdapterInterface $adapter)
     {
-        $this->string($this->photo->getHRSize())
+        $photo = $this->getPhoto($adapter);
+
+        $this->string($photo->getHRSize())
              ->isEqualTo(sprintf('%d %s', self::IMG_SIZE, 'b'));
     }
     
-    public function testGetComputedSize()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetComputedSize(Adapter\AdapterInterface $adapter)
     {
-        $this->integer($this->photo->getWidth())
+        $photo = $this->getPhoto($adapter);
+
+        $this->integer($photo->getWidth())
              ->isEqualTo(self::IMG_DIM);
         
-        $this->integer($this->photo->getHeight())
+        $this->integer($photo->getHeight())
              ->isEqualTo(self::IMG_DIM);
         
-        $this->string($this->photo->getHtmlAttr())
+        $this->string($photo->getHtmlAttr())
              ->isEqualTo(sprintf('width="%d" height="%d"', self::IMG_DIM, self::IMG_DIM));
     }
     
-    public function testGetPhotoType()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetPhotoType(Adapter\AdapterInterface $adapter)
     {
-        $this->integer($this->photo->getPhotoType())
+        $photo = $this->getPhoto($adapter);
+
+        $this->integer($photo->getPhotoType())
              ->isEqualTo(self::IMG_TYPE);
     }
     
     public function tearDown()
     {
-        $fs = new Fs($this->_fsTreeProvider());
-        $fs->clear();
+        $this->buildFs()->clear();
+    }
+
+    public function getPhoto(Adapter\AdapterInterface $adapter)
+    {
+        return $this->buildSet($adapter)->getById(0);
     }
     
-    private function _fsTreeProvider()
+    protected function fsTreeProvider()
     {
         return array('Canon_450D'   => array(
             'Sandrine'  => array(

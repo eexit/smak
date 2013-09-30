@@ -8,17 +8,17 @@ Do "php path/to/test/file -c path/to/this/file" or "php path/to/atoum/scripts/ru
 use \mageekguy\atoum;
 
 /*
-Write all on stdout.
+This will add the default CLI report
 */
 $stdOutWriter = new atoum\writers\std\out();
 
 /*
 Xunit report
 */
-$xunit = new atoum\reports\asynchronous\xunit();
-$runner->addReport($xunit);
-$writer = new atoum\writers\file(__DIR__ . '/../build/atoum/report.xml');
-$xunit->addWriter($writer);
+$xunitWriter = new atoum\writers\file(__DIR__ . '/../build/report.xml');
+$xunitReport = new atoum\reports\asynchronous\xunit();
+$xunitReport->addWriter($xunitWriter);
+$runner->addReport($xunitReport);
 
 /*
 Code coverage rapport

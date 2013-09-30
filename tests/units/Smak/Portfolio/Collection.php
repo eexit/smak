@@ -2,43 +2,72 @@
 
 namespace Smak\Portfolio\tests\units;
 
-use mageekguy\atoum;
 use Smak\Portfolio;
 use Smak\Portfolio\SortHelper;
-use tests\Fs;
+use Symfony\Component\Finder\Adapter;
+use tests\units\Smak\Portfolio\Fs;
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-class Collection extends atoum\test
-{   
+class Collection extends Fs\FsAdapter
+{
     public function setUp()
     {
-        $fs = new Fs($this->_fsTreeProvider());
-        $fs->setDiffTime(true)->clear()->build();
+        $this->buildFs();
+    }
+
+    public function buildFs()
+    {
+        $fs = new Fs\FsBuilder($this->fsTreeProvider());
+        $fs->setDiffTime(true)->build();
+
+        return $fs;
+    }
+
+    public function buildCollection(Adapter\AdapterInterface $adapter, $dir = null)
+    {
+        if (! $dir) {
+            $fs = $this->buildFs();
+            $dir = $fs->getRoot();
+        }
+
+        $collection = new \Smak\Portfolio\Collection($dir);
+        $collection->removeAdapters()->addAdapter($adapter);
+
+        return $collection;
+    }
+
+    public function beforeTestMethod($method)
+    {
+        $fs = $this->buildFs();
         $this->boolean($fs->isBuilt())->isTrue();
     }
     
-    public function beforeTestMethod($method)
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testClassDeclaration(Adapter\AdapterInterface $adapter)
     {
-        $this->fs       = new Fs($this->_fsTreeProvider());
-        $this->instance = new \Smak\Portfolio\Collection($this->fs->getRoot());
-    }
-    
-    public function testClassDeclaration()
-    {
-        $this->object($this->instance)
+        $collection = $this->buildCollection($adapter);
+
+        $this->object($collection)
              ->isInstanceOf('\Smak\Portfolio\Portfolio');
 
-        $this->object($this->instance)
+        $this->object($collection)
              ->isInstanceOf('\Symfony\Component\Finder\Finder');
         
         $this->class('\Smak\Portfolio\Collection')
              ->hasInterface('\Countable');
     }
     
-    public function testGetAll()
+    /**
+    * @dataProvider getAdaptersTestData
+    */
+    public function testGetAll(Adapter\AdapterInterface $adapter)
     {
-        $this->object($sets = $this->instance->getAll())
+        $collection = $this->buildCollection($adapter);
+
+        $this->object($sets = $collection->getAll())
              ->isInstanceOf('\ArrayIterator');
 
         foreach ($sets as $set) {
@@ -46,16 +75,24 @@ class Collection extends atoum\test
         }
     }
     
-    public function testCount()
+    /**
+    * @dataProvider getAdaptersTestData
+    */
+    public function testCount(Adapter\AdapterInterface $adapter)
     {
-        $this->integer($this->instance->count())
+        $collection = $this->buildCollection($adapter);
+
+        $this->integer($collection->count())
              ->isEqualTo(5);
     }
-
-    public function testGetById()
+    
+    /**
+    * @dataProvider getAdaptersTestData
+    */
+    public function testGetById(Adapter\AdapterInterface $adapter)
     {
-        $collection = $this->instance;
-        $tree       = $this->fs->getTree();
+        $collection = $this->buildCollection($adapter);
+        $tree       = $this->buildFs()->getTree();
         $tree       = array_keys($tree);
         
         $this->exception(function() use ($collection) {
@@ -70,9 +107,12 @@ class Collection extends atoum\test
         })->isInstanceOf('\OutOfRangeException');
     }
     
-    public function testGetByName()
+    /**
+    * @dataProvider getAdaptersTestData
+    */
+    public function testGetByName(Adapter\AdapterInterface $adapter)
     {
-        $collection = $this->instance;
+        $collection = $this->buildCollection($adapter);
 
         $this->exception(function() use ($collection) {
             $collection->getByName(23.34);
@@ -87,10 +127,13 @@ class Collection extends atoum\test
              ->isNull();
     }
 
-    public function testGetFirst()
+    /**
+    * @dataProvider getAdaptersTestData
+    */
+    public function testGetFirst(Adapter\AdapterInterface $adapter)
     {
-        $first    = $this->instance->getFirst();
-        $tree     = array_keys($this->fs->getTree());
+        $first    = $this->buildCollection($adapter)->getFirst();
+        $tree     = array_keys($this->buildFs()->getTree());
         $expected = array_shift($tree);
         
         $this->object($first)
@@ -100,10 +143,13 @@ class Collection extends atoum\test
              ->isEqualTo($expected);
     }
 
-    public function testGetLast()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetLast(Adapter\AdapterInterface $adapter)
     {
-        $tree     = $this->fs->getTree();
-        $last     = $this->instance->getLast();
+        $last     = $this->buildCollection($adapter)->getLast();
+        $tree     = $this->buildFs()->getTree();
         $expected = array_keys(array_pop($tree));
         
         $this->object($last)
@@ -113,28 +159,36 @@ class Collection extends atoum\test
              ->isEqualTo($expected[0]);
     }
 
-    public function testGetAllInReversedOrder()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetAllInReversedOrder(Adapter\AdapterInterface $adapter)
     {
-        $this->instance = new \Smak\Portfolio\Collection($this->fs->getRoot() . '/Canon_450D');
-
-        $tree = $this->fs->getTree();
-        $expected = array_keys($tree['Canon_450D']);
+        $fs         = $this->buildFs();
+        $collection = $this->buildCollection($adapter, $fs->getRoot() . DIRECTORY_SEPARATOR . 'Canon_450D');
+        $tree       = $fs->getTree();
+        $expected   = array_keys($tree['Canon_450D']);
         sort($expected);
         
-        foreach ($this->instance->sort(SortHelper::reverseName())->getAll() as $set) {
+        foreach ($collection->sort(SortHelper::reverseName())->getAll() as $set) {
             $results[] = $set->name;
         }
         
         $this->array(array_reverse($expected))->isEqualTo($results);
     }
     
-    public function testGetCollectionAsSet()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetCollectionAsSet(Adapter\AdapterInterface $adapter)
     {
-        $this->instance = new \Smak\Portfolio\Collection($this->fs->getRoot() . '/Canon_450D/2012-12-12');
-        $tree           = $this->fs->getTree();
-        $expected       = $tree['Canon_450D']['2012-12-12'];
+        $fs         = $this->buildFs();
+        $path       = $fs->getRoot() . DIRECTORY_SEPARATOR . 'Canon_450D' . DIRECTORY_SEPARATOR . '2012-12-12';
+        $collection = $this->buildCollection($adapter, $path);
+        $tree       = $fs->getTree();
+        $expected   = $tree['Canon_450D']['2012-12-12'];
 
-        $this->object($set = $this->instance->asSet())
+        $this->object($set = $collection->asSet())
              ->isInstanceOf('\Smak\Portfolio\Set');
 
         $this->object($set)
@@ -145,25 +199,28 @@ class Collection extends atoum\test
              ->isEqualTo(array_pop($expected));
     }
 
-    public function testSerialization()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testSerialization(Adapter\AdapterInterface $adapter)
     {
-        $collection_dir        = $this->instance->asSet()->getSplInfo()->getRealPath();
-        $unserialized_instance = unserialize(serialize($this->instance));
+        $collection              = $this->buildCollection($adapter);
+        $collection_dir          = $collection->asSet()->getSplInfo()->getRealPath();
+        $unserialized_collection = unserialize(serialize($collection));
 
-        $this->string($unserialized_instance->asSet()->getSplInfo()->getRealPath())
+        $this->string($unserialized_collection->asSet()->getSplInfo()->getRealPath())
              ->isEqualTo($collection_dir);
         
-        $this->integer($unserialized_instance->count())
+        $this->integer($unserialized_collection->count())
              ->isEqualTo(5);
     }
     
     public function tearDown()
     {
-        $fs = new Fs($this->_fsTreeProvider());
-        $fs->clear();
+        $this->buildFs()->clear();
     }
     
-    private function _fsTreeProvider()
+    protected function fsTreeProvider()
     {
         return array(
             'Canon_450D'        => array(

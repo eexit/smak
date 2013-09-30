@@ -1,57 +1,50 @@
 <?php
 
-namespace tests;
+namespace tests\units\Smak\Portfolio\Fs;
 
 /**
- * Fs.php
+ * FsBuilder.php
  * 
  * @author Joris Berthelot <joris@berthelot.tel>
  * @copyright Copyright (c) 2012, Joris Berthelot
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  */
-class Fs
+class FsBuilder
 {
     /**
      * FS root dir
      */
-    private $_root;
+    private $root;
     
     /**
      * FS dir and file tree
      */
-    private $_tree = array();
+    private $tree = array();
     
     /**
      * Is the FS built?
      */
-    private $_built = false;
+    private $is_built = false;
     
     /**
      * Files have to have different modif time each other
      */
-    private $_diffTime = false;
+    private $diff_time = false;
     
     /**
      * Class constructor
      * 
-     * @param string $dir Root FS dir
-     * @param array [$tree Optional FS tree]
+     * @param array $tree File tree to build
+     * @param [string $dir Root FS dir]
      */
-    public function __construct(array $tree = null, $dir = null)
+    public function __construct(array $tree, $dir = null)
     {
         if (! $dir) {
-            $dir = realpath(sys_get_temp_dir());
-        }
-
-        if (! is_dir($dir) || ! is_writable($dir)) {
-            throw new \InvalidArgumentException('Filesystem root dir does not exists or cannot be written!');
+            $dir = realpath(sys_get_temp_dir()) . DIRECTORY_SEPARATOR . 'eexit-smak'; 
         }
         
-        $this->_root = $dir;
-        
-        if (! null == $tree) {
-            $this->_tree = $tree;
-        }
+        $this->tree = $tree;
+        $this->prepareRoot($dir);
     }
     
     /**
@@ -61,11 +54,15 @@ class Fs
      */
     public function build()
     {
-        chdir($this->_root);
+        $dir = __DIR__;
 
-        if ($this->_buildTree($this->_tree)) {
-            $this->_built = true;
+        chdir($this->getRoot());
+
+        if ($this->buildTree($this->tree)) {
+            $this->is_built = true;
         }
+
+        chdir($dir);
         
         return $this;
     }
@@ -77,7 +74,7 @@ class Fs
      */
     public function isBuilt()
     {
-        return $this->_built;
+        return $this->is_built;
     }
     
     /**
@@ -88,7 +85,7 @@ class Fs
      */
     public function setDiffTime($flag)
     {
-        $this->_diffTime = (bool) $flag;
+        $this->diff_time = (bool) $flag;
 
         return $this;
     }
@@ -100,7 +97,13 @@ class Fs
      */
     public function clear()
     {
-        @shell_exec('rm -rf ' . $this->getRoot() . '/*');
+        $root = $this->getRoot();
+
+        if (empty($root) || DIRECTORY_SEPARATOR == $root || DIRECTORY_SEPARATOR . '*' == $root) {
+            return;
+        }
+
+        @shell_exec('rm -rf ' . $root);
         
         return $this;
     }
@@ -112,7 +115,7 @@ class Fs
      */
     public function getTree()
     {
-        return $this->_tree;
+        return $this->tree;
     }
     
     /**
@@ -122,7 +125,7 @@ class Fs
      */
     public function getRoot()
     {
-        return $this->_root;
+        return $this->root;
     }
 
     /**
@@ -130,9 +133,22 @@ class Fs
      *
      * @return int
      */
-    private function _getRandomTimestamp()
+    private function getRandomTimestamp()
     {
         return mt_rand(1325372400, 1356994800);
+    }
+
+    private function prepareRoot($dir)
+    {
+        if (! is_dir($dir)) {
+            mkdir($dir);
+        }
+
+        if (! is_dir($dir) || ! is_writable($dir)) {
+            throw new \InvalidArgumentException('Filesystem root dir does not exists or cannot be written!');
+        }
+
+        $this->root = $dir;
     }
     
     /**
@@ -141,7 +157,7 @@ class Fs
      * @param array $root Top current branch root
      * @return bool
      */
-    private function _buildTree($root)
+    private function buildTree($root)
     {
         foreach ($root as $dir => $file) {
             if (is_array($file)) {
@@ -155,16 +171,16 @@ class Fs
                     return false;
                 }
                 
-                if ($this->_diffTime && ! touch($dir, $this->_getRandomTimestamp(), $this->_getRandomTimestamp())) {
+                if ($this->diff_time && ! touch($dir, $this->getRandomTimestamp(), $this->getRandomTimestamp())) {
                     return false;
                 }
 
-                if (! $this->_buildTree($file)) {
+                if (! $this->buildTree($file)) {
                     return false;
                 }
                 chdir('..');
             } else {
-                if ($this->_diffTime && ! touch($file, $this->_getRandomTimestamp(), $this->_getRandomTimestamp())) {
+                if ($this->diff_time && ! touch($file, $this->getRandomTimestamp(), $this->getRandomTimestamp())) {
                     return false;
                 } elseif (! touch($file)) {
                     return false;

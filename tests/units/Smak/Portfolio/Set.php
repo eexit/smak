@@ -2,53 +2,89 @@
 
 namespace Smak\Portfolio\tests\units;
 
-use mageekguy\atoum;
 use Smak\Portfolio;
 use Smak\Portfolio\SortHelper;
-use tests\Fs;
+use Symfony\Component\Finder\Adapter;
+use tests\units\Smak\Portfolio\Fs;
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-class Set extends atoum\test
+class Set extends Fs\FsAdapter
 {   
+    
     public function setUp()
     {
-        $fs = new Fs($this->_fsTreeProvider());
-        $fs->build();
-        $this->boolean($fs->isBuilt())->isTrue();
+        $this->buildFs();
     }
-    
+
+    public function buildFs()
+    {
+        $fs = new Fs\FsBuilder($this->fsTreeProvider());
+        $fs->setDiffTime(true)->build();
+
+        return $fs;
+    }
+
+    public function buildSet(Adapter\AdapterInterface $adapter, \SplFileInfo $set_root = null)
+    {
+        $fs = $this->buildFs();
+        $tree = $fs->getTree();
+
+        if (null == $set_root) {
+            $set_root = new \SplFileInfo($fs->getRoot()
+                . DIRECTORY_SEPARATOR
+                . 'Travels'
+                . DIRECTORY_SEPARATOR
+                . 'Chile');
+        }
+
+        $set = new \Smak\Portfolio\Set($set_root);
+        $set->removeAdapters()->addAdapter($adapter);
+
+        return $set;
+    }
+
     public function beforeTestMethod($method)
     {
-        $this->fs       = new Fs($this->_fsTreeProvider());
-        $this->fs->setDiffTime(true)->build();
-        $setRoot        = new \SplFileInfo($this->fs->getRoot() . '/Travels/Chile');
-        $this->instance = new \Smak\Portfolio\Set($setRoot);
-
-        $this->string($this->instance->name)
-             ->isEqualTo('Chile');
+        foreach ($this->getValidAdapters() as $adapter) {
+            $set = $this->buildSet($adapter);
+            $this->string($set->name)
+                 ->isEqualTo('Chile');
+        }
     }
     
-    public function testClassDeclaration()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testClassDeclaration(Adapter\AdapterInterface $adapter)
     {
-        $this->object($this->instance)
+        $set = $this->buildSet($adapter);
+
+        $this->object($set)
              ->isInstanceOf('\Symfony\Component\Finder\Finder');
 
-        $this->object($this->instance)
+        $this->object($set)
              ->isInstanceOf('\Smak\Portfolio\Portfolio');
         
         $this->class('\Smak\Portfolio\Set')
              ->hasInterface('\Countable');
     }
     
-    public function testCount()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testCount(Adapter\AdapterInterface $adapter)
     {
-        $this->integer($this->instance->count())->isEqualTo(4);
+        $set = $this->buildSet($adapter);
+        $this->integer($set->count())->isEqualTo(4);
     }
     
-    public function testExtensions()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testExtensions(Adapter\AdapterInterface $adapter)
     {
-        $set = $this->instance;
+        $set = $this->buildSet($adapter);
         
         $this->array($set->getExtensions())
              ->isEqualTo(array('.jpg', '.jpeg', '.jpf', '.png'));
@@ -70,9 +106,12 @@ class Set extends atoum\test
         })->isInstanceOf('\InvalidArgumentException');
     }
     
-    public function testTemplateExtension()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testTemplateExtension(Adapter\AdapterInterface $adapter)
     {
-        $set = $this->instance;
+        $set = $this->buildSet($adapter);
         
         $this->array($set->getTemplateExtensions())
              ->isEqualTo(array('.html.twig'));
@@ -94,16 +133,23 @@ class Set extends atoum\test
         })->isInstanceOf('\InvalidArgumentException');
     }
     
-    public function testGetAll()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetAll(Adapter\AdapterInterface $adapter)
     {
-        $this->object($this->instance->getAll())
+        $set = $this->buildSet($adapter);
+        $this->object($set->getAll())
              ->isInstanceOf('\ArrayIterator');
     }
     
-    public function testGetById()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetById(Adapter\AdapterInterface $adapter)
     {
-        $set  = $this->instance;
-        $tree = $this->fs->getTree();
+        $set = $this->buildSet($adapter);
+        $tree = $this->buildFs()->getTree();
         $tree = $tree['Travels']['Chile'];
         array_pop($tree);
         sort($tree);
@@ -120,10 +166,13 @@ class Set extends atoum\test
         })->isInstanceOf('\OutOfRangeException');
     }
     
-    public function testGetByName()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetByName(Adapter\AdapterInterface $adapter)
     {
-        $set  = $this->instance;
-        $tree = $this->fs->getTree();
+        $set = $this->buildSet($adapter);
+        $tree = $this->buildFs()->getTree();
         $tree = $tree['Travels']['Chile'];
         array_pop($tree);
         sort($tree);
@@ -139,31 +188,50 @@ class Set extends atoum\test
             ->isNull();
     }
     
-    public function testGetTemplate()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetTemplate(Adapter\AdapterInterface $adapter)
     {
-        $this->object($this->instance->getTemplate())
+        $set = $this->buildSet($adapter);
+
+        $this->object($set->getTemplate())
              ->isInstanceOf('\SplFileInfo');
         
-        $this->string($this->instance->getTemplate()->getFilename())
+        $this->string($set->getTemplate()->getFilename())
              ->isEqualTo('Chile.html.twig');
     }
     
-    public function testGetSetSplInfo()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetSetSplInfo(Adapter\AdapterInterface $adapter)
     {
-        $this->object($this->instance->getSplInfo())
+        $set = $this->buildSet($adapter);
+        $set_root = $this->buildFs()->getRoot()
+                . DIRECTORY_SEPARATOR
+                . 'Travels'
+                . DIRECTORY_SEPARATOR
+                . 'Chile';
+
+        $this->object($set->getSplInfo())
              ->isInstanceOf('\SplFileInfo');
         
-        $this->string($this->instance->getSplInfo()->getFilename())
+        $this->string($set->getSplInfo()->getFilename())
              ->isEqualTo('Chile');
         
-        $this->string($this->instance->getSplInfo()->getRealPath())
-             ->isEqualTo($this->fs->getRoot() . '/Travels/Chile');
+        $this->string($set->getSplInfo()->getRealPath())
+             ->isEqualTo($set_root);
     }
     
-    public function testGetFirst()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetFirst(Adapter\AdapterInterface $adapter)
     {
-        $first    = $this->instance->getFirst();
-        $tree     = $this->fs->getTree();
+        $set      = $this->buildSet($adapter);
+        $first    = $set->getFirst();
+        $tree     = $this->buildFs()->getTree();
         $expected = array_shift($tree['Travels']['Chile']);
         
         $this->object($first)
@@ -173,10 +241,14 @@ class Set extends atoum\test
              ->isEqualTo($expected);
     }
     
-    public function testGetLast()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetLast(Adapter\AdapterInterface $adapter)
     {
-        $last = $this->instance->getLast();
-        $tree = $this->fs->getTree();
+        $set  = $this->buildSet($adapter);
+        $last = $set->getLast();
+        $tree = $this->buildFs()->getTree();
         array_pop($tree['Travels']['Chile']); // Removes the twig file from Tree
         $expected = array_pop($tree['Travels']['Chile']);
         
@@ -187,28 +259,36 @@ class Set extends atoum\test
              ->isEqualTo($expected);
     }
 
-    public function testGetInReversedOrder()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetInReversedOrder(Adapter\AdapterInterface $adapter)
     {
-        $tree = $this->fs->getTree();
+        $set      = $this->buildSet($adapter);
+        $tree     = $this->buildFs()->getTree();
         $expected = $tree['Travels']['Chile'];
         array_pop($expected);
         sort($expected);
         
-        foreach ($this->instance->sort(SortHelper::reverseName())->getAll() as $file) {
+        foreach ($set->sort(SortHelper::reverseName())->getAll() as $file) {
             $results[] = $file->getFilename();
         }
         
         $this->array(array_reverse($expected))->isEqualTo($results);
     }
 
-    public function testGetSetAsCollection()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testGetSetAsCollection(Adapter\AdapterInterface $adapter)
     {
-        $tree           = $this->fs->getTree();
-        $setRoot        = new \SplFileInfo($this->fs->getRoot() . '/Travels');
-        $this->instance = new \Smak\Portfolio\Set($setRoot);
-        $expected       = array_keys($tree['Travels']);
+        $fs       = $this->buildFs();
+        $tree     = $fs->getTree();
+        $set_root = new \SplFileInfo($fs->getRoot() . DIRECTORY_SEPARATOR . 'Travels');
+        $set      = $this->buildSet($adapter, $set_root);
+        $expected = array_keys($tree['Travels']);
 
-        $this->object($collection = $this->instance->asCollection())
+        $this->object($collection = $set->asCollection())
              ->isInstanceOf('\Smak\Portfolio\Collection');
 
         $this->object($collection)
@@ -221,22 +301,26 @@ class Set extends atoum\test
         $this->array($expected)->isEqualTo($results);
     }
 
-    public function testSerialization()
+    /**
+     * @dataProvider getAdaptersTestData
+     */
+    public function testSerialization(Adapter\AdapterInterface $adapter)
     {   
+        $set = $this->buildSet($adapter);
         $helpers = array(
             'foo'   => 'bar',
             'bar'   => 'baz',
             'time'  => time()
         );
 
-        $set_root = $this->instance->getSplInfo()->getRealPath();
-        $set_name = $this->instance->name;
+        $set_root = $set->getSplInfo()->getRealPath();
+        $set_name = $set->name;
 
         foreach ($helpers as $key => $value) {
-            $this->instance->$key = $value;
+            $set->$key = $value;
         }
 
-        $unserialized_instance = unserialize(serialize($this->instance));
+        $unserialized_instance = unserialize(serialize($set));
 
         $this->string($unserialized_instance->name)
              ->isEqualTo($set_name);
@@ -261,11 +345,10 @@ class Set extends atoum\test
     
     public function tearDown()
     {
-        $fs = new Fs($this->_fsTreeProvider());
-        $fs->clear();
+        $this->buildFs()->clear();
     }
     
-    private function _fsTreeProvider()
+    protected function fsTreeProvider()
     {
         return array('Travels'  => array(
             'Chile' => array(
