@@ -2,8 +2,10 @@
 
 namespace Smak\Fcms;
 
-use Smak\Fcms\LoaderInterface;
-use Smak\Fcms\ParserInterface;
+use Smak\Fcms\Response;
+use Silex\Application;
+use Eexit\Twig\ContextParser\ContextParser;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Engine.php
@@ -14,28 +16,73 @@ use Smak\Fcms\ParserInterface;
  */
 class Engine
 {
-    protected $_loader;
+    protected $app;
 
-    protected $_parser;
+    protected $context = array();
 
-    public function __construct(LoaderInterface $loader, RenderInterface $parser, array $options = [])
+    protected $context_parser;
+
+    protected $content_wrapper;
+
+    public function __construct(Application $app, ContextParser $context_parser = null)
     {
-        $this->_loader = $loader;
-        $this->_parser = $parser;
+        $this->app = $app;
+        $this->context_parser = $context_parser;
     }
 
-    public function parseUri($uri)
+    public function doResponse($uri)
     {
-        return str_replace('/', DIRECTORY_SEPARATOR, trim($uri, '/'));
+        $extension = array_shift($this->content_wrapper->getExtensions());
+        $path = sprintf('%s%s', $uri, $extension);
+
+        if ($this->app['twig.loader']->exists($path)) {
+            $template = $this->app['twig']->loadTemplate($path);
+        } else {
+            $path = sprintf('%s%s%s', $uri, DIRECTORY_SEPARATOR, $this->content_wrapper->getIndex());
+            $template = $this->app['twig']->loadTemplate($path);
+        }
+
+        $response           = new Response();
+        $response->template = $template;
+        $response->context  = $this->getContext();
+        $response->metadata = $this->getMetadata();
+
+        return $response;
     }
 
-    public function loadContent($content_uri)
+    public function getContext(\Twig_Template $template)
     {
-        return $this->_loader->find($content_uri);
+        if (! $this->context_parser) {
+            return;
+        }
+
+        $source = $this->app['twig.loader']->getSource($template->getTemplateName());
+        $node = $this->app['twig']->parse($this->app['twig']->tokenize($source));
+        $this->context = $this->context_parser->parse($node)->getContext();
+        $this->enrichMetdata($template);
+
+        return $this->context;
     }
 
-    public function renderContent(\SplFileInfo $content_file)
+    protected function enrichMetdata(\Twig_Template $template)
     {
-        return $this->_parser->render($content_file);
+        $this->context['metadata']['uri'] = $this->app['request']->getRequestUri();
+        $this->context['metadata']['lastmod'] = new DateTime(sprintf('@%d', filemtime($this->app['twig']->getCacheFilename($template->getTemplateName()))));
+    }
+
+    public function getMetadata()
+    {
+        return $this->context['metadata']);
+    }
+
+    public function getTemplates()
+    {
+        $finder = Finder::create();
+        $finder->files()
+               ->ignoreDotFiles(true)
+               ->in($this->content_wrapper->getContentPath())
+               ->name(array_shift($this->content_wrapper->getExtensions()));
+
+        var_dump($finder);
     }
 }
