@@ -1,6 +1,7 @@
 {
     "name": "eexit/smak",
     "type": "library",
+    "description": "Tools for my websites.",
     "homepage": "http://www.eexit.net",
     "license": "MIT",
     "authors": [
@@ -17,7 +18,7 @@
         "twig/twig"                 : ">=1.8,<2.0-dev",
         "silex/silex"               : "1.*",
         "eexit/twig-context-parser" : "0.1.*",
-        "atoum/atoum"               : "dev-master",
+        "atoum/atoum"               : "dev-master"
     },
     "suggest": {
         "michelf/php-markdown"      : "Original Markdown engine with MarkdownExtra.",
