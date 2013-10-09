@@ -2,7 +2,9 @@
 
 namespace Smak\Fcms\Engine;
 
+use Silex\Application;
 use Smak\Fcms\Engine;
+use Eexit\Twig\ContextParser\ContextParser;
 use Smak\Fcms\ContentWrapperInterface;
 
 class MarkdownEngine extends Engine

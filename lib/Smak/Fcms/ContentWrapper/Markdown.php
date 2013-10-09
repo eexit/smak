@@ -3,7 +3,7 @@
 namespace Smak\Fcms\ContentWrapper;
 
 use Smak\Fcms\ContentWrapperInterface;
-use Aptoma\Twig\Extension\MarkdownEngine;
+use Aptoma\Twig\Extension\MarkdownEngineInterface;
 
 class Markdown implements ContentWrapperInterface
 {
@@ -15,14 +15,20 @@ class Markdown implements ContentWrapperInterface
 
     protected $extensions;
 
-    public function __construct()
+    public function __construct($content_path = null)
     {
+        if ($content_path) {
+            $this->setContentPath($content_path);    
+        }
+        
         $this->extensions = array('.md', '.markdown');
     }
 
-    public function setEngine(MarkdownEngine $engine)
+    public function setEngine(MarkdownEngineInterface $engine)
     {
         $this->engine = $engine;
+
+        return $this;
     }
 
     public function getEngine()
@@ -37,6 +43,8 @@ class Markdown implements ContentWrapperInterface
         }
 
         $this->content_path = $content_path;
+
+        return $this;
     }
 
     public function getContentPath()
@@ -51,6 +59,8 @@ class Markdown implements ContentWrapperInterface
         }
 
         $this->index = $index;
+
+        return $this;
     }
 
     public function getIndexBasename()
@@ -69,6 +79,8 @@ class Markdown implements ContentWrapperInterface
         if (! in_array(strtolower($extension), $this->extensions)) {
             $this->extensions[] = strtolower($extension);
         }
+
+        return $this;
     }
 
     public function setExtensions(array $extensions)
@@ -76,6 +88,8 @@ class Markdown implements ContentWrapperInterface
         foreach ($extensions as $extension) {
             $this->setExtension($extension);
         }
+
+        return $this;
     }
 
     public function getExtensions()
@@ -85,6 +99,8 @@ class Markdown implements ContentWrapperInterface
 
     public function getIndex()
     {
-        return $this->getIndexBasename() . array_shift($this->getExtensions());
+        $extensions = $this->getExtensions();
+
+        return $this->getIndexBasename() . array_shift($extensions);
     }
 }

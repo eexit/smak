@@ -32,7 +32,8 @@ class Engine
 
     public function doResponse($uri)
     {
-        $extension = array_shift($this->content_wrapper->getExtensions());
+        $extensions = $this->content_wrapper->getExtensions();
+        $extension = array_shift($extensions);
         $path = sprintf('%s%s', $uri, $extension);
 
         if ($this->app['twig.loader']->exists($path)) {
@@ -44,7 +45,7 @@ class Engine
 
         $response           = new Response();
         $response->template = $template;
-        $response->context  = $this->getContext();
+        $response->context  = $this->getContext($template);
         $response->metadata = $this->getMetadata();
 
         return $response;
@@ -66,23 +67,39 @@ class Engine
 
     protected function enrichMetdata(\Twig_Template $template)
     {
-        $this->context['metadata']['uri'] = $this->app['request']->getRequestUri();
-        $this->context['metadata']['lastmod'] = new DateTime(sprintf('@%d', filemtime($this->app['twig']->getCacheFilename($template->getTemplateName()))));
+        $this->context['metadata']['uri'] = $template->getTemplateName();
+        $this->context['metadata']['lastmod'] = new \DateTime(sprintf('@%d', filemtime($this->app['twig']->getCacheFilename($template->getTemplateName()))));
     }
 
     public function getMetadata()
     {
-        return $this->context['metadata']);
+        return $this->context['metadata'];
     }
 
     public function getTemplates()
     {
-        $finder = Finder::create();
-        $finder->files()
-               ->ignoreDotFiles(true)
-               ->in($this->content_wrapper->getContentPath())
-               ->name(array_shift($this->content_wrapper->getExtensions()));
+        $templates = array();
+        $extensions = $this->content_wrapper->getExtensions();
 
-        var_dump($finder);
+        $finder = new Finder();
+        $files = $finder->files()
+               ->name(sprintf('*%s', array_shift($extensions)))
+               ->in($this->content_wrapper->getContentPath());
+
+        foreach ($files as $file) {
+
+            $this->getContext($template = $this->app['twig']->loadTemplate($file->getRelativePathname()));
+            $metadata = $this->getMetadata();
+
+            if (isset($metadata['indexed']) && true == $metadata['indexed']) {
+                $response = new Response();
+                $response->template = $template;
+                $response->context = $this->context;
+                $response->metadata = $metadata;
+                $templates[] = $response;
+            }
+        }
+
+        return $templates;
     }
 }
