@@ -12,11 +12,11 @@
     ],
     "require": {
         "php"                       : ">=5.3.3",
-        "symfony/finder"            : "dev-master"
+        "symfony/finder"            : "~2.3"
     },
     "require-dev": {
-        "twig/twig"                 : ">=1.8,<2.0-dev",
-        "silex/silex"               : "1.*",
+        "twig/twig"                 : "~1.8",
+        "silex/silex"               : "~1.0",
         "eexit/twig-context-parser" : "0.1.*",
         "atoum/atoum"               : "dev-master"
     },
