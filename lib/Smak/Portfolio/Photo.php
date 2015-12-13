@@ -47,7 +47,7 @@ class Photo extends \SplFileInfo
         parent::__construct($file_name);
         
         if (!extension_loaded('gd')) {
-            throw \RuntimeException('GD PHP extension not loaded!');
+            throw new \RuntimeException('GD PHP extension not loaded!');
         }
 
         if ($this->getSize()) {
@@ -122,7 +122,7 @@ class Photo extends \SplFileInfo
     private function formatSize($size)
     {
         if (0 > $size) {
-            throw \InvalidArgumentException('File size cannot be lesser than 0 byte!');
+            throw new \InvalidArgumentException('File size cannot be lesser than 0 byte!');
         }
         
         if ($size < 1e3) { // 0 octets > 9999 octets
