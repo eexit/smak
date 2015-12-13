@@ -12,19 +12,13 @@
     ],
     "require": {
         "php"                       : ">=5.3.3",
-        "symfony/finder"            : "dev-master"
+        "symfony/finder"            : "~2.0"
     },
     "require-dev": {
-        "twig/twig"                 : ">=1.8,<2.0-dev",
-        "silex/silex"               : "1.*",
-        "eexit/twig-context-parser" : "0.1.*",
-        "atoum/atoum"               : "dev-master"
-    },
-    "suggest": {
-        "michelf/php-markdown"      : "Original Markdown engine with MarkdownExtra.",
-        "twig/twig"                 : "PHP template engine.",
-        "silex/silex"               : "PHP microframework.",
-        "eexit/twig-context-parser" : "Twig template context getter off rendering context."
+        "twig/twig"                 : "~1.0",
+        "silex/silex"               : "~1.0",
+        "eexit/twig-context-parser" : "~0.1",
+        "atoum/atoum"               : "~2.4.0"
     },
     "autoload": {
         "psr-0": { "Smak": "lib/" },
